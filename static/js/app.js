@@ -26,6 +26,8 @@ const isPublicPage = !isAppPage;
 let currentUser = null;
 let publicInitialized = false;
 let appInitialized = false;
+let publicAlbumsInitialized = false;
+let publicPollsInitialized = false;
 
 auth.onAuthStateChanged((user) => {
   currentUser = user;
@@ -50,8 +52,6 @@ function initializePublicPage() {
   listenToQuotes();
   setupQuoteForms(currentUser, getDisplayName);
   setupLoginForm();
-  listenToAlbums();
-  listenToPolls(null, currentUser);
   setupPublicTabs();
 }
 
@@ -69,10 +69,11 @@ function initializeDashboard() {
   setupNewChatModal(currentUser, selectChat);
   setupAlbumForm(currentUser, getDisplayName);
   setupPollForm(currentUser, getDisplayName);
-  listenToChats(currentUser, activatePanel, selectChat);
   listenToAlbums(updateCount);
   listenToPolls(updateCount, currentUser);
-  loadAllUsers(currentUser);
+  loadAllUsers(currentUser, () => {
+    listenToChats(currentUser, activatePanel, selectChat);
+  });
 
   db.collection('users')
     .doc(currentUser.uid)
@@ -178,6 +179,16 @@ function setupPublicTabs() {
         btn.classList.toggle('btn-secondary', sectionId !== targetSectionId);
       }
     });
+
+    if (targetSectionId === 'albums-section' && !publicAlbumsInitialized) {
+      publicAlbumsInitialized = true;
+      listenToAlbums();
+    }
+
+    if (targetSectionId === 'polls-section' && !publicPollsInitialized) {
+      publicPollsInitialized = true;
+      listenToPolls(null, currentUser);
+    }
   }
 
   tabs.forEach(({ buttonId, sectionId }) => {

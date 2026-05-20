@@ -1,4 +1,5 @@
 import { db } from '../core/firebase-init.js';
+import { clearCachedQuery, getCachedQuery } from '../core/firestore-cache.js';
 import { showToast, createEmptyState } from '../core/utils.js';
 
 let pollsListener = null;
@@ -16,7 +17,10 @@ export function listenToPolls(updateCount, currentUser) {
         snapshot.forEach((doc) => polls.push({ id: doc.id, ...doc.data() }));
         renderPolls(polls, currentUser);
         if (updateCount) {
-          updateCount('poll-count', polls.filter((poll) => !poll.closed).length);
+          updateCount(
+            'poll-count',
+            polls.filter((poll) => !poll.closed).length,
+          );
         }
       },
       () => {
@@ -81,9 +85,7 @@ export function renderPolls(polls, currentUser) {
   containers.forEach((container) => {
     container.innerHTML = '';
     if (polls.length === 0) {
-      container.appendChild(
-        createEmptyState('還沒有投票，登入後可以建立第一題😀'),
-      );
+      container.appendChild(createEmptyState('還沒有投票...'));
       return;
     }
 
@@ -157,19 +159,19 @@ export function createPollCard(poll, currentUser) {
 }
 
 export function hydratePollVotes(poll, card, currentUser) {
-  db.collection('polls')
-    .doc(poll.id)
-    .collection('votes')
-    .get()
-    .then((snapshot) => {
+  getCachedQuery(
+    db.collection('polls').doc(poll.id).collection('votes'),
+    `poll-votes:${poll.id}`,
+    { ttlMs: 15 * 1000 },
+  )
+    .then((votes) => {
       const counts = new Array((poll.options || []).length).fill(0);
       let total = 0;
       let myChoices = [];
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const choices = Array.isArray(data.choices) ? data.choices : [];
-        if (doc.id === currentUser?.uid) {
+      votes.forEach((vote) => {
+        const choices = Array.isArray(vote.choices) ? vote.choices : [];
+        if (vote.id === currentUser?.uid) {
           myChoices = choices;
         }
         choices.forEach((choice) => {
@@ -222,6 +224,7 @@ export function submitVote(poll, form, currentUser) {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     })
     .then(() => {
+      clearCachedQuery(`poll-votes:${poll.id}`);
       showToast('投票已送出！');
       const card = form.closest('.poll-card');
       if (card) hydratePollVotes(poll, card, currentUser);

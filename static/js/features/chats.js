@@ -1,4 +1,5 @@
 import { db } from '../core/firebase-init.js';
+import { getCachedQuery } from '../core/firestore-cache.js';
 import { showToast, formatTime } from '../core/utils.js';
 
 let currentChatId = null;
@@ -253,23 +254,11 @@ export function selectChat(chatId, currentUser) {
 }
 
 export function resolveMemberNames(members, callback) {
-  const names = [];
-  let resolvedCount = 0;
-  members.forEach((uid) => {
-    db.collection('users')
-      .doc(uid)
-      .get()
-      .then((doc) => {
-        names.push(doc.exists ? doc.data().name : '朋友');
-        resolvedCount++;
-        if (resolvedCount === members.length) callback(names);
-      })
-      .catch(() => {
-        names.push('朋友');
-        resolvedCount++;
-        if (resolvedCount === members.length) callback(names);
-      });
+  const names = members.map((uid) => {
+    const user = allUsers.find((item) => item.uid === uid);
+    return user ? user.name : '朋友';
   });
+  callback(names);
 }
 
 export function toggleLikeMessage(
@@ -323,15 +312,24 @@ export function handleSendMessage(e, currentUser, getDisplayName) {
     .catch(() => {});
 }
 
-export function loadAllUsers(currentUser) {
-  db.collection('users')
-    .get()
-    .then((snapshot) => {
-      allUsers = [];
-      snapshot.forEach((doc) => {
-        allUsers.push(doc.data());
-      });
+export function loadAllUsers(currentUser, onLoaded) {
+  getCachedQuery(db.collection('users'), 'all-users-lite', {
+    ttlMs: 10 * 60 * 1000,
+    normalizeItem: (user) => ({
+      uid: user.uid,
+      name: user.name,
+      username: user.username,
+    }),
+  })
+    .then((users) => {
+      allUsers = users;
       renderStudentList(currentUser);
+      if (onLoaded) onLoaded();
+    })
+    .catch(() => {
+      allUsers = [];
+      renderStudentList(currentUser);
+      if (onLoaded) onLoaded();
     });
 }
 

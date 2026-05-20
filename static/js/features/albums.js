@@ -1,4 +1,5 @@
 import { db } from '../core/firebase-init.js';
+import { clearCachedQuery, getCachedQuery } from '../core/firestore-cache.js';
 import {
   showToast,
   createEmptyState,
@@ -37,9 +38,7 @@ export function renderAlbums(albums) {
   containers.forEach((container) => {
     container.innerHTML = '';
     if (albums.length === 0) {
-      container.appendChild(
-        createEmptyState('目前還沒有相簿...登入後可以建立第一本😀'),
-      );
+      container.appendChild(createEmptyState('目前還沒有相簿...'));
       return;
     }
 
@@ -86,21 +85,24 @@ export function createAlbumCard(album) {
 }
 
 export function loadAlbumPhotos(albumId, target) {
-  db.collection('albums')
-    .doc(albumId)
-    .collection('photos')
-    .orderBy('createdAt', 'asc')
-    .limit(6)
-    .get()
-    .then((snapshot) => {
+  getCachedQuery(
+    db
+      .collection('albums')
+      .doc(albumId)
+      .collection('photos')
+      .orderBy('createdAt', 'asc')
+      .limit(6),
+    `album-photos:${albumId}`,
+    { ttlMs: 2 * 60 * 1000 },
+  )
+    .then((photos) => {
       target.innerHTML = '';
-      if (snapshot.empty) {
+      if (photos.length === 0) {
         target.appendChild(createEmptyState('還沒有照片...'));
         return;
       }
 
-      snapshot.forEach((doc) => {
-        const photo = doc.data();
+      photos.forEach((photo) => {
         const img = document.createElement('img');
         img.src = photo.url;
         img.alt = photo.caption || '相簿照片';
@@ -206,6 +208,9 @@ export function saveAlbumPhoto(albumId, file, index, currentUser) {
         createdBy: currentUser.uid,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       })
-      .then(() => url);
+      .then(() => {
+        clearCachedQuery(`album-photos:${albumId}`);
+        return url;
+      });
   });
 }

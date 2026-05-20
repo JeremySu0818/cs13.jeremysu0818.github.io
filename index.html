@@ -1,1 +1,50 @@
-<title>Test</title>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS13 Graduation Memorial</title>
+  <link rel="stylesheet" href="static/css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="bg-glow">
+    <div class="glow-bubble bubble-1"></div>
+    <div class="glow-bubble bubble-2"></div>
+  </div>
+
+  <div class="login-container">
+    <div class="card quote-card">
+      <div class="quote-title">CS13 Memories</div>
+      <div class="quote-text" id="quote-display">Loading...</div>
+      <div class="quote-btn-group">
+        <button class="btn btn-secondary" id="copy-quote-btn">Copy</button>
+        <button class="btn" id="next-quote-btn">Next</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1 class="login-title">Welcome Back</h1>
+      <p class="login-subtitle">Sign in to connect with classmates</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-username">Username / Student ID</label>
+          <input class="form-input" type="text" id="login-username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input class="form-input" type="password" id="login-password" required autocomplete="current-password">
+        </div>
+        <button class="btn login-btn" type="submit" id="submit-btn">Sign In</button>
+        <div class="error-message" id="error-message"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast-message"></div>
+
+  <script src="static/js/app.js"></script>
+</body>
+</html>

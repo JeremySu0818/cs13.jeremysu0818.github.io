@@ -255,7 +255,11 @@
           </button>
         </nav>
         <div class="profile-container">
-          <div class="avatar-circle" id="user-avatar">-</div>
+          <button
+            class="avatar-circle avatar-button"
+            id="user-avatar"
+            title="個人設定"
+          ></button>
           <button class="nav-item" id="logout-btn" title="登出">
             <svg
               width="20"
@@ -524,6 +528,93 @@
           </form>
           <div class="quote-wall" id="quote-wall">
             <div class="empty-state">幹話載入中...</div>
+          </div>
+        </section>
+
+        <section class="hub-panel" id="profile-panel" data-liquid-glass>
+          <div class="section-heading-row">
+            <div>
+              <span class="section-kicker">Profile</span>
+              <h2 class="section-title">個人設定</h2>
+              <p class="section-copy">更新頭貼、帳號與密碼</p>
+            </div>
+          </div>
+
+          <div class="profile-settings-grid">
+            <form class="feature-form profile-card" id="avatar-form">
+              <div class="settings-avatar-preview" id="settings-avatar-preview">
+                -
+              </div>
+              <div>
+                <label class="form-label" for="avatar-file">頭貼</label>
+                <div class="file-upload-wrapper">
+                  <label for="avatar-file" class="file-upload-label">
+                    <span id="avatar-upload-status">選擇新頭貼</span>
+                  </label>
+                  <input
+                    type="file"
+                    id="avatar-file"
+                    accept="image/*"
+                    class="file-input-hidden"
+                  />
+                </div>
+              </div>
+              <div class="error-message" id="avatar-error-message"></div>
+              <button class="btn" type="submit">更新頭貼</button>
+            </form>
+
+            <form class="feature-form profile-card" id="account-form">
+              <div>
+                <label class="form-label" for="account-username">帳號</label>
+                <input
+                  class="form-input"
+                  type="text"
+                  id="account-username"
+                  autocomplete="username"
+                  required
+                  maxlength="32"
+                />
+              </div>
+              <p class="form-hint">
+                帳號不可和其他人重複😣也不能使用預設座號帳號
+              </p>
+              <div class="error-message" id="account-error-message"></div>
+              <button class="btn" type="submit">更新帳號</button>
+            </form>
+
+            <form class="feature-form profile-card" id="profile-password-form">
+              <div class="form-group">
+                <label class="form-label" for="profile-new-password">
+                  新密碼
+                </label>
+                <input
+                  class="form-input"
+                  type="password"
+                  id="profile-new-password"
+                  autocomplete="new-password"
+                  required
+                  minlength="6"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="profile-confirm-password">
+                  確認新密碼
+                </label>
+                <input
+                  class="form-input"
+                  type="password"
+                  id="profile-confirm-password"
+                  autocomplete="new-password"
+                  required
+                  minlength="6"
+                />
+              </div>
+              <div
+                class="error-message"
+                id="profile-password-error-message"
+              ></div>
+              <button class="btn" type="submit">更新密碼</button>
+            </form>
           </div>
         </section>
       </main>

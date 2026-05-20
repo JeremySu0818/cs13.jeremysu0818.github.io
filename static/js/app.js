@@ -17,6 +17,7 @@ import {
   setupLogout,
   showChangePasswordModal,
   setupChangePasswordForm,
+  setupProfileSettings,
 } from './core/auth.js';
 
 const isAppPage = location.pathname.includes('app.html');
@@ -63,6 +64,7 @@ function initializeDashboard() {
   setupUserAvatar();
   setupPanelNavigation();
   setupChangePasswordForm(currentUser);
+  setupProfileSettings(currentUser, setupUserAvatar);
   setupLogout(cleanupChatListeners);
   setupNewChatModal(currentUser, selectChat);
   setupAlbumForm(currentUser, getDisplayName);
@@ -127,6 +129,8 @@ function initializeDashboard() {
     activatePanel('albums-panel');
   } else if (location.hash === '#polls') {
     activatePanel('polls-panel');
+  } else if (location.hash === '#profile') {
+    activatePanel('profile-panel');
   }
 }
 
@@ -230,10 +234,27 @@ function activatePanel(panelId) {
   });
 }
 
-function setupUserAvatar() {
+function setupUserAvatar(avatarDataUrl = null) {
   const avatar = document.getElementById('user-avatar');
   if (avatar) {
-    avatar.textContent = getDisplayName(currentUser).charAt(0).toUpperCase();
+    if (!avatar.dataset.bound) {
+      avatar.dataset.bound = 'true';
+      avatar.addEventListener('click', () => {
+        activatePanel('profile-panel');
+        location.hash = 'profile';
+      });
+    }
+
+    if (avatarDataUrl === null) return;
+
+    avatar.textContent = '';
+    avatar.style.backgroundImage = '';
+
+    if (avatarDataUrl) {
+      avatar.style.backgroundImage = `url("${avatarDataUrl}")`;
+    } else {
+      avatar.textContent = getDisplayName(currentUser).charAt(0).toUpperCase();
+    }
   }
 }
 

@@ -287,6 +287,8 @@
 .file-upload-wrapper {
   position: relative;
   width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .file-input-hidden {
@@ -305,7 +307,10 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 48px;
+  overflow: hidden;
   border: 1px dashed var(--line);
   background: rgba(255, 255, 255, 0.12);
   color: var(--text);
@@ -315,6 +320,16 @@
   transition: background-color 0.15s ease, border-color 0.15s ease;
   padding: 12px;
   text-align: center;
+}
+
+.file-upload-label span {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .file-upload-label:hover {

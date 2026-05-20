@@ -71,6 +71,7 @@ async function createUsers() {
         uid: userRecord.uid,
         name: student.name,
         username: student.username,
+        authEmail: email,
         mustChangePassword: true,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
       });

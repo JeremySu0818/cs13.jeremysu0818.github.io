@@ -82,6 +82,19 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
+  color: var(--text);
+  background-size: cover;
+  background-position: center;
+}
+
+.avatar-button {
+  padding: 0;
+}
+
+.avatar-button:hover,
+.avatar-button.active {
+  background-color: var(--surface-hover);
+  transform: translateY(-1px);
 }
 
 .hub-main {
@@ -141,6 +154,11 @@
   border: 1px solid var(--line-soft);
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.12);
+  min-width: 0;
+}
+
+.feature-form > * {
+  min-width: 0;
 }
 
 .switch-row {
@@ -184,6 +202,41 @@
 .quote-chip {
   padding: 16px;
   line-height: 1.6;
+}
+
+.profile-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 16px;
+  min-width: 0;
+}
+
+.profile-card {
+  align-content: start;
+  margin-bottom: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.profile-card > * {
+  min-width: 0;
+}
+
+.settings-avatar-preview {
+  width: 118px;
+  height: 118px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  background: rgba(255, 255, 255, 0.16);
+  background-size: cover;
+  background-position: center;
+  color: var(--text);
+  font-size: 2.6rem;
+  font-weight: 800;
 }
 
 .nav-item svg {

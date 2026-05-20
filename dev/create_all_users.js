@@ -45,7 +45,7 @@ async function initializeGlobalChat() {
   if (!doc.exists) {
     await chatRef.set({
       chatId: 'global_class_chat',
-      name: 'CS13 全班大群組',
+      name: '全班群組😀',
       isGroup: true,
       isGlobal: true,
       members: [],

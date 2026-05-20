@@ -144,7 +144,7 @@ export function selectChat(chatId, currentUser) {
 
       if (chat.isGlobal) {
         title.textContent = chat.name;
-        membersText.textContent = 'Everyone in CS13';
+        membersText.textContent = 'Everyone in 13班';
         avatar.textContent = 'G';
       } else if (chat.isGroup) {
         title.textContent = chat.name;
@@ -269,7 +269,12 @@ export function resolveMemberNames(members, callback) {
   });
 }
 
-export function toggleLikeMessage(chatId, messageId, currentLikes, currentUser) {
+export function toggleLikeMessage(
+  chatId,
+  messageId,
+  currentLikes,
+  currentUser,
+) {
   const ref = db
     .collection('chats')
     .doc(chatId)
@@ -445,7 +450,13 @@ export function setupNewChatModal(currentUser, selectChatFn) {
   });
 }
 
-export function createNewChat(name, isGroup, members, selectChatFn, currentUser) {
+export function createNewChat(
+  name,
+  isGroup,
+  members,
+  selectChatFn,
+  currentUser,
+) {
   const modal = document.getElementById('new-chat-modal');
   const newChatRef = db.collection('chats').doc();
   const chatId = newChatRef.id;

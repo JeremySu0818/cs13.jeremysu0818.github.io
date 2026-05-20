@@ -128,6 +128,7 @@ function updatePublicAuthState() {
 
   const tabLogin = document.getElementById('tab-login');
   const tabApp = document.getElementById('tab-app');
+  const authOnlyLinks = document.querySelectorAll('.auth-only-link');
 
   if (currentUser) {
     loginSection.classList.add('signed-in');
@@ -137,10 +138,12 @@ function updatePublicAuthState() {
     if (copy) copy.textContent = '可以直接進入班級後台新增相簿、投票或聊天 😀 ';
     if (tabLogin) tabLogin.classList.add('hidden');
     if (tabApp) tabApp.classList.remove('hidden');
+    authOnlyLinks.forEach((link) => link.classList.remove('hidden'));
   } else {
     loginSection.classList.remove('signed-in');
     if (tabLogin) tabLogin.classList.remove('hidden');
     if (tabApp) tabApp.classList.add('hidden');
+    authOnlyLinks.forEach((link) => link.classList.add('hidden'));
   }
 }
 

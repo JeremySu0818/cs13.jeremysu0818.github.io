@@ -168,6 +168,10 @@
   border-bottom: 1px solid var(--line-soft);
 }
 
+.chat-back-btn {
+  display: none;
+}
+
 .chat-header-info {
   display: flex;
   align-items: center;

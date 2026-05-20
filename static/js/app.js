@@ -115,6 +115,14 @@ function initializeDashboard() {
     );
   }
 
+  const chatBackBtn = document.getElementById('chat-back-btn');
+  if (chatBackBtn) {
+    chatBackBtn.addEventListener('click', () => {
+      const chatPanel = document.getElementById('chat-panel');
+      if (chatPanel) chatPanel.classList.remove('chat-view-active');
+    });
+  }
+
   if (location.hash === '#albums') {
     activatePanel('albums-panel');
   } else if (location.hash === '#polls') {

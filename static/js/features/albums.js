@@ -115,6 +115,19 @@ export function setupAlbumForm(currentUser, getDisplayName) {
   if (!form || form.dataset.bound) return;
   form.dataset.bound = 'true';
 
+  const fileInput = document.getElementById('album-files');
+  const fileStatus = document.getElementById('file-upload-status');
+  if (fileInput && fileStatus) {
+    fileInput.addEventListener('change', () => {
+      const count = fileInput.files ? fileInput.files.length : 0;
+      if (count > 0) {
+        fileStatus.textContent = `已選擇 ${count} 張相片`;
+      } else {
+        fileStatus.textContent = '選擇上傳照片 (可多選)';
+      }
+    });
+  }
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!currentUser) {
@@ -165,6 +178,9 @@ export function setupAlbumForm(currentUser, getDisplayName) {
       })
       .then(() => {
         form.reset();
+        if (fileStatus) {
+          fileStatus.textContent = '選擇上傳照片 (可多選)';
+        }
         showToast('相簿建立成功！');
       })
       .catch(() => {

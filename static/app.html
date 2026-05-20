@@ -153,6 +153,11 @@
 
             <div class="chat-content-placeholder hidden" id="chat-main-area">
               <div class="chat-header">
+                <button class="btn-icon chat-back-btn" id="chat-back-btn" title="Back">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
                 <div class="chat-header-info">
                   <div class="chat-header-avatar" id="active-chat-avatar">
                     -
@@ -224,14 +229,19 @@
               placeholder="相簿描述"
               maxlength="160"
             ></textarea>
-            <input
-              class="form-input"
-              type="file"
-              id="album-files"
-              accept="image/*"
-              multiple
-              required
-            />
+            <div class="file-upload-wrapper">
+              <label for="album-files" class="file-upload-label">
+                <span id="file-upload-status">選擇上傳照片 (可多選)</span>
+              </label>
+              <input
+                type="file"
+                id="album-files"
+                accept="image/*"
+                multiple
+                required
+                class="file-input-hidden"
+              />
+            </div>
             <button class="btn" type="submit">建立相簿</button>
           </form>
           <div class="album-grid" id="app-album-list">

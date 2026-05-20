@@ -132,6 +132,9 @@ export function selectChat(chatId, currentUser) {
   document.getElementById('welcome-screen').classList.add('hidden');
   document.getElementById('chat-main-area').classList.remove('hidden');
 
+  const chatPanel = document.getElementById('chat-panel');
+  if (chatPanel) chatPanel.classList.add('chat-view-active');
+
   db.collection('chats')
     .doc(chatId)
     .get()

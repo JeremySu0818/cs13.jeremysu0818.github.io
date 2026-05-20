@@ -1,7 +1,14 @@
 const BACKGROUNDS = Object.freeze([
-  "/static/images/backgrounds/1.jpg",
-  "/static/images/backgrounds/2.jpg",
-  "/static/images/backgrounds/3.jpg",
+  '/static/images/backgrounds/1.jpg',
+  '/static/images/backgrounds/2.jpg',
+  '/static/images/backgrounds/3.jpg',
+  '/static/images/backgrounds/4.jpg',
+  '/static/images/backgrounds/5.jpg',
+  '/static/images/backgrounds/6.jpg',
+  '/static/images/backgrounds/7.jpg',
+  '/static/images/backgrounds/8.jpg',
+  '/static/images/backgrounds/9.jpg',
+  '/static/images/backgrounds/10.jpg',
 ]);
 
 const GLASS_OPTIONS = Object.freeze({
@@ -10,7 +17,7 @@ const GLASS_OPTIONS = Object.freeze({
   glassThickness: 300,
   blur: 0,
   refractiveIndex: 1.5,
-  surface: "convexSquircle",
+  surface: 'convexSquircle',
   specularOpacity: 1,
 });
 
@@ -21,8 +28,8 @@ function pickRandomBackground() {
 function setRandomBackground() {
   const background = pickRandomBackground();
   document.documentElement.style.setProperty(
-    "--page-background",
-    `url("${background}")`
+    '--page-background',
+    `url("${background}")`,
   );
 }
 
@@ -50,17 +57,17 @@ function mountGlassFilter(createLiquidGlass, element, registry) {
     ...GLASS_OPTIONS,
   });
 
-  const holder = document.createElement("div");
+  const holder = document.createElement('div');
   holder.innerHTML = glass.svgFilter;
   const svg = holder.firstElementChild;
 
   if (svg) {
-    svg.setAttribute("aria-hidden", "true");
-    svg.style.position = "absolute";
-    svg.style.width = "0";
-    svg.style.height = "0";
-    svg.style.overflow = "hidden";
-    svg.style.pointerEvents = "none";
+    svg.setAttribute('aria-hidden', 'true');
+    svg.style.position = 'absolute';
+    svg.style.width = '0';
+    svg.style.height = '0';
+    svg.style.overflow = 'hidden';
+    svg.style.pointerEvents = 'none';
     document.body.appendChild(svg);
   }
 
@@ -70,17 +77,17 @@ function mountGlassFilter(createLiquidGlass, element, registry) {
 }
 
 export function initPageEffects(createLiquidGlass) {
-  if (typeof window === "undefined" || typeof document === "undefined") {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
     return () => {};
   }
 
   setRandomBackground();
 
-  if (typeof createLiquidGlass !== "function") {
+  if (typeof createLiquidGlass !== 'function') {
     return () => {};
   }
 
-  const elements = Array.from(document.querySelectorAll("[data-liquid-glass]"));
+  const elements = Array.from(document.querySelectorAll('[data-liquid-glass]'));
   if (elements.length === 0) {
     return () => {};
   }
@@ -93,8 +100,8 @@ export function initPageEffects(createLiquidGlass) {
   };
 
   const resizeObserver =
-    typeof ResizeObserver === "function"
-      ? new ResizeObserver(entries => {
+    typeof ResizeObserver === 'function'
+      ? new ResizeObserver((entries) => {
           for (const entry of entries) {
             mountGlassFilter(createLiquidGlass, entry.target, registry);
           }
@@ -109,10 +116,10 @@ export function initPageEffects(createLiquidGlass) {
   }
 
   requestAnimationFrame(refreshAll);
-  window.addEventListener("resize", refreshAll);
+  window.addEventListener('resize', refreshAll);
 
   return () => {
-    window.removeEventListener("resize", refreshAll);
+    window.removeEventListener('resize', refreshAll);
     resizeObserver?.disconnect();
 
     for (const { svg } of registry.values()) {

@@ -7,12 +7,14 @@ import {
 
 let quotes = [];
 let quotesListener = null;
+let isAddingQuote = false;
+const EMPTY_QUOTE_TEXT = '目前還沒有幸貞的幹話，來新增第一句吧:)';
 
 export function setQuotes(nextQuotes) {
   quotes = nextQuotes
     .map((item) => (typeof item === 'string' ? { text: item } : item))
     .filter((item) => item.text);
-  showRandomQuote();
+  showRandomQuoteIfNeeded({ preserveCurrent: isAddingQuote });
   renderQuoteWall();
 }
 
@@ -44,7 +46,7 @@ export function listenToQuotes() {
 export function showRandomQuote() {
   const quote =
     quotes.length === 0
-      ? '目前還沒有幸貞的幹話，來新增第一句吧:)'
+      ? EMPTY_QUOTE_TEXT
       : getQuoteText(quotes[Math.floor(Math.random() * quotes.length)]);
   const displays = [
     document.getElementById('quote-display'),
@@ -56,15 +58,40 @@ export function showRandomQuote() {
   });
 }
 
+function showRandomQuoteIfNeeded({ preserveCurrent = false } = {}) {
+  const currentQuote = [
+    document.getElementById('quote-display'),
+    document.getElementById('welcome-quote-display'),
+  ].find((display) => display)?.textContent;
+
+  if (
+    preserveCurrent &&
+    currentQuote &&
+    currentQuote !== '載入中...' &&
+    currentQuote !== EMPTY_QUOTE_TEXT
+  ) {
+    return;
+  }
+
+  const quoteTexts = quotes.map(getQuoteText);
+  const shouldPickQuote =
+    !currentQuote ||
+    currentQuote === '載入中...' ||
+    currentQuote === EMPTY_QUOTE_TEXT ||
+    !quoteTexts.includes(currentQuote);
+
+  if (shouldPickQuote) {
+    showRandomQuote();
+  }
+}
+
 export function renderQuoteWall() {
   const wall = document.getElementById('quote-wall');
   if (!wall) return;
 
   wall.innerHTML = '';
   if (quotes.length === 0) {
-    wall.appendChild(
-      createEmptyState('目前還沒有幸貞的幹話，來新增第一句吧:)'),
-    );
+    wall.appendChild(createEmptyState(EMPTY_QUOTE_TEXT));
     return;
   }
 
@@ -80,6 +107,8 @@ export function addQuote(text, input, currentUser, getDisplayName) {
   const normalized = text.trim();
   if (!normalized) return;
 
+  isAddingQuote = true;
+
   db.collection('quotes')
     .add({
       text: normalized,
@@ -92,6 +121,9 @@ export function addQuote(text, input, currentUser, getDisplayName) {
     })
     .catch(() => {
       showToast('幹話新增失敗:(');
+    })
+    .finally(() => {
+      isAddingQuote = false;
     });
 }
 

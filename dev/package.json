@@ -1,0 +1,9 @@
+{
+  "name": "cs13-dev",
+  "version": "1.0.0",
+  "description": "Firebase admin tools",
+  "main": "create_users.js",
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}

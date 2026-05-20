@@ -1,149 +1,380 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CS13 Lounge</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-</head>
-<body>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <div class="logo-container">CS</div>
-      <nav class="nav-menu">
-        <div class="nav-item active" id="nav-chat-btn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          </svg>
-        </div>
-      </nav>
-      <div class="profile-container">
-        <div class="avatar-circle" id="user-avatar">-</div>
-        <div class="nav-item" id="logout-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-        </div>
-      </div>
-    </aside>
-
-    <div class="chat-sidebar" data-liquid-glass>
-      <div class="chat-sidebar-header">
-        <div class="chat-sidebar-title-row">
-          <h2 class="chat-sidebar-title">Chats</h2>
-          <button class="btn-icon" id="new-chat-trigger">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CS13 Class Hub</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body class="app-page">
+    <div class="app-layout">
+      <aside class="sidebar">
+        <a class="logo-container" href="/index.html">CS</a>
+        <nav class="nav-menu" aria-label="Class hub navigation">
+          <button
+            class="nav-item active"
+            id="nav-home-btn"
+            data-panel="home-panel"
+            title="首頁"
+          >
+            <span class="nav-label">Home</span>
+          </button>
+          <button
+            class="nav-item"
+            id="nav-chat-btn"
+            data-panel="chat-panel"
+            title="聊天室"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              ></path>
+            </svg>
+          </button>
+          <button class="nav-item" data-panel="albums-panel" title="相簿">
+            <span class="nav-label">Album</span>
+          </button>
+          <button class="nav-item" data-panel="polls-panel" title="投票">
+            <span class="nav-label">Poll</span>
+          </button>
+          <button class="nav-item" data-panel="quotes-panel" title="幹話">
+            <span class="nav-label">Quote</span>
+          </button>
+        </nav>
+        <div class="profile-container">
+          <div class="avatar-circle" id="user-avatar">-</div>
+          <button class="nav-item" id="logout-btn" title="登出">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
           </button>
         </div>
-        <div class="search-bar">
-          <input class="search-input" type="text" id="chat-search" placeholder="Search chats...">
-        </div>
-      </div>
-      <div class="chat-list" id="chat-list-container"></div>
-    </div>
+      </aside>
 
-    <main class="chat-content" data-liquid-glass>
-      <div class="welcome-screen" id="welcome-screen">
-        <h2 class="welcome-title" id="welcome-user-title">Welcome to CS13 Lounge</h2>
-        <p class="welcome-subtitle">Select a classmate or group to start chatting, or browse memories below</p>
-        <div class="welcome-quote-card">
-          <div class="quote-title">Today's Quote</div>
-          <div class="quote-text" id="welcome-quote-display">Loading quote...</div>
-        </div>
-      </div>
-
-      <div class="chat-content-placeholder hidden" id="chat-main-area">
-        <div class="chat-header">
-          <div class="chat-header-info">
-            <div class="chat-header-avatar" id="active-chat-avatar">-</div>
-            <div>
-              <div class="chat-header-title" id="active-chat-title">Group Chat</div>
-              <div class="chat-header-subtitle" id="active-chat-members">Members</div>
+      <main class="hub-main">
+        <section class="hub-panel active" id="home-panel" data-liquid-glass>
+          <div class="hub-overview">
+            <span class="section-kicker">CS13 Class Hub</span>
+            <h1 class="section-title" id="welcome-user-title">
+              Welcome to CS13
+            </h1>
+            <p class="section-copy">聊天、相簿、投票和簡幸貞幹話都在這裡。</p>
+            <div class="quick-actions">
+              <button class="btn" data-panel-target="chat-panel">
+                打開聊天室
+              </button>
+              <button
+                class="btn btn-secondary"
+                data-panel-target="albums-panel"
+              >
+                新增相簿
+              </button>
+              <button class="btn btn-secondary" data-panel-target="polls-panel">
+                建立投票
+              </button>
             </div>
           </div>
-        </div>
+          <div class="dashboard-grid">
+            <article class="mini-card">
+              <span class="section-kicker">Quote</span>
+              <div class="quote-text compact" id="welcome-quote-display">
+                Loading quote...
+              </div>
+            </article>
+            <article class="mini-card">
+              <span class="section-kicker">Albums</span>
+              <strong id="album-count">--</strong>
+              <p>個班級相簿</p>
+            </article>
+            <article class="mini-card">
+              <span class="section-kicker">Polls</span>
+              <strong id="poll-count">--</strong>
+              <p>個進行中的投票</p>
+            </article>
+          </div>
+        </section>
 
-        <div class="message-area" id="message-list"></div>
-
-        <div class="chat-input-area">
-          <form class="chat-input-form" id="message-form">
-            <div class="chat-input-wrapper">
-              <input class="chat-input" type="text" id="message-input" placeholder="Type a message..." required autocomplete="off">
+        <section class="hub-panel chat-panel" id="chat-panel">
+          <div class="chat-sidebar" data-liquid-glass>
+            <div class="chat-sidebar-header">
+              <div class="chat-sidebar-title-row">
+                <h2 class="chat-sidebar-title">Chats</h2>
+                <button class="btn-icon" id="new-chat-trigger" title="New chat">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                </button>
+              </div>
+              <div class="search-bar">
+                <input
+                  class="search-input"
+                  type="text"
+                  id="chat-search"
+                  placeholder="Search chats..."
+                />
+              </div>
             </div>
-            <button class="btn-send" type="submit">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-            </button>
+            <div class="chat-list" id="chat-list-container"></div>
+          </div>
+
+          <div class="chat-content" data-liquid-glass>
+            <div class="welcome-screen" id="welcome-screen">
+              <h2 class="welcome-title">聊天室</h2>
+              <p class="welcome-subtitle">
+                選一個同學或群組開始聊天，或按左邊的加號建立新聊天室。
+              </p>
+            </div>
+
+            <div class="chat-content-placeholder hidden" id="chat-main-area">
+              <div class="chat-header">
+                <div class="chat-header-info">
+                  <div class="chat-header-avatar" id="active-chat-avatar">
+                    -
+                  </div>
+                  <div>
+                    <div class="chat-header-title" id="active-chat-title">
+                      Group Chat
+                    </div>
+                    <div class="chat-header-subtitle" id="active-chat-members">
+                      Members
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="message-area" id="message-list"></div>
+
+              <div class="chat-input-area">
+                <form class="chat-input-form" id="message-form">
+                  <div class="chat-input-wrapper">
+                    <input
+                      class="chat-input"
+                      type="text"
+                      id="message-input"
+                      placeholder="Type a message..."
+                      required
+                      autocomplete="off"
+                    />
+                  </div>
+                  <button class="btn-send" type="submit">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="hub-panel" id="albums-panel" data-liquid-glass>
+          <div class="section-heading-row">
+            <div>
+              <span class="section-kicker">Albums</span>
+              <h2 class="section-title">班級相簿</h2>
+              <p class="section-copy">建立相簿、選擇照片。</p>
+            </div>
+          </div>
+          <form class="feature-form" id="album-form">
+            <input
+              class="form-input"
+              type="text"
+              id="album-title"
+              placeholder="相簿名稱"
+              maxlength="50"
+              required
+            />
+            <textarea
+              class="form-input"
+              id="album-description"
+              placeholder="相簿描述"
+              maxlength="160"
+            ></textarea>
+            <input
+              class="form-input"
+              type="file"
+              id="album-files"
+              accept="image/*"
+              multiple
+              required
+            />
+            <button class="btn" type="submit">建立相簿</button>
+          </form>
+          <div class="album-grid" id="app-album-list">
+            <div class="empty-state">相簿載入中...</div>
+          </div>
+        </section>
+
+        <section class="hub-panel" id="polls-panel" data-liquid-glass>
+          <div class="section-heading-row">
+            <div>
+              <span class="section-kicker">Polls</span>
+              <h2 class="section-title">班級投票</h2>
+              <p class="section-copy">建立單選或多選投票。</p>
+            </div>
+          </div>
+          <form class="feature-form" id="poll-form">
+            <input
+              class="form-input"
+              type="text"
+              id="poll-question"
+              placeholder="投票問題"
+              maxlength="80"
+              required
+            />
+            <textarea
+              class="form-input"
+              id="poll-options"
+              placeholder="每行一個選項，至少兩個"
+              required
+            ></textarea>
+            <label class="switch-row">
+              <input type="checkbox" id="poll-allow-multiple" />
+              <span>允許多選</span>
+            </label>
+            <button class="btn" type="submit">建立投票</button>
+          </form>
+          <div class="poll-list" id="app-poll-list">
+            <div class="empty-state">投票載入中...</div>
+          </div>
+        </section>
+
+        <section class="hub-panel" id="quotes-panel" data-liquid-glass>
+          <div class="section-heading-row">
+            <div>
+              <span class="section-kicker">Teacher Quotes</span>
+              <h2 class="section-title">簡幸貞幹話牆</h2>
+            </div>
+          </div>
+          <form class="inline-form" id="app-quote-form">
+            <input
+              class="form-input"
+              type="text"
+              id="app-quote-input"
+              placeholder="新增一句簡幸貞幹話"
+              maxlength="120"
+              required
+            />
+            <button class="btn" type="submit">新增幹話</button>
+          </form>
+          <div class="quote-wall" id="quote-wall">
+            <div class="empty-state">幹話載入中...</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal-overlay" id="new-chat-modal">
+      <div class="card modal-card" data-liquid-glass>
+        <div class="modal-header">
+          <h3 class="modal-title">New Chat</h3>
+          <button class="close-btn" id="new-chat-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group hidden" id="group-name-field">
+            <label class="form-label" for="group-chat-name">Group Name</label>
+            <input
+              class="form-input"
+              type="text"
+              id="group-chat-name"
+              placeholder="Enter group name..."
+            />
+          </div>
+          <label class="form-label">Select Classmates</label>
+          <div class="student-select-list" id="student-list"></div>
+        </div>
+        <div class="quote-btn-group">
+          <button class="btn btn-secondary" id="new-chat-cancel-btn">
+            Cancel
+          </button>
+          <button class="btn" id="create-chat-submit-btn">Create</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="change-password-modal">
+      <div class="card modal-card" data-liquid-glass>
+        <div class="modal-header">
+          <h3 class="modal-title">Change Password</h3>
+        </div>
+        <div class="modal-body">
+          <p class="login-subtitle modal-note">
+            For your account security, please update your temporary password
+            before entering the lounge.
+          </p>
+          <form id="change-password-form">
+            <div class="form-group">
+              <label class="form-label" for="new-password">New Password</label>
+              <input
+                class="form-input"
+                type="password"
+                id="new-password"
+                required
+                minlength="6"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirm-password"
+                >Confirm Password</label
+              >
+              <input
+                class="form-input"
+                type="password"
+                id="confirm-password"
+                required
+                minlength="6"
+              />
+            </div>
+            <div class="error-message" id="password-error-message"></div>
+            <button class="btn login-btn" type="submit">Update Password</button>
           </form>
         </div>
       </div>
-    </main>
-  </div>
-
-  <div class="modal-overlay" id="new-chat-modal">
-    <div class="card modal-card" data-liquid-glass>
-      <div class="modal-header">
-        <h3 class="modal-title">New Chat</h3>
-        <button class="close-btn" id="new-chat-close">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group hidden" id="group-name-field">
-          <label class="form-label" for="group-chat-name">Group Name</label>
-          <input class="form-input" type="text" id="group-chat-name" placeholder="Enter group name...">
-        </div>
-        <label class="form-label">Select Classmates</label>
-        <div class="student-select-list" id="student-list"></div>
-      </div>
-      <div class="quote-btn-group">
-        <button class="btn btn-secondary" id="new-chat-cancel-btn">Cancel</button>
-        <button class="btn" id="create-chat-submit-btn">Create</button>
-      </div>
     </div>
-  </div>
 
-  <div class="modal-overlay" id="change-password-modal">
-    <div class="card modal-card" data-liquid-glass>
-      <div class="modal-header">
-        <h3 class="modal-title">Change Password</h3>
-      </div>
-      <div class="modal-body">
-        <p class="login-subtitle modal-note">
-          For your account security, please update your temporary password before entering the lounge.
-        </p>
-        <form id="change-password-form">
-          <div class="form-group">
-            <label class="form-label" for="new-password">New Password</label>
-            <input class="form-input" type="password" id="new-password" required minlength="6">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="confirm-password">Confirm Password</label>
-            <input class="form-input" type="password" id="confirm-password" required minlength="6">
-          </div>
-          <div class="error-message" id="password-error-message"></div>
-          <button class="btn login-btn" type="submit">Update Password</button>
-        </form>
-      </div>
-    </div>
-  </div>
+    <div class="toast" id="toast-message"></div>
 
-  <div class="toast" id="toast-message"></div>
+    <script src="js/app.js"></script>
+    <script type="module">
+      import { createLiquidGlass } from 'https://esm.sh/solid-glass@0.0.3/engines/svg-refraction';
+      import { initPageEffects } from '/static/js/ui-effects.js';
 
-  <script src="js/app.js"></script>
-  <script type="module">
-    import { createLiquidGlass } from "https://esm.sh/solid-glass@0.0.3/engines/svg-refraction";
-    import { initPageEffects } from "/static/js/ui-effects.js";
-
-    initPageEffects(createLiquidGlass);
-  </script>
-</body>
+      initPageEffects(createLiquidGlass);
+    </script>
+  </body>
 </html>

@@ -1,51 +1,141 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CS13 Graduation Memorial</title>
-  <link rel="stylesheet" href="static/css/style.css">
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-</head>
-<body>
-  <div class="login-container">
-    <div class="card quote-card" data-liquid-glass>
-      <div class="quote-title">CS13 Memories</div>
-      <div class="quote-text" id="quote-display">Loading...</div>
-      <div class="quote-btn-group">
-        <button class="btn btn-secondary" id="copy-quote-btn">Copy</button>
-        <button class="btn" id="next-quote-btn">Next</button>
-      </div>
-    </div>
-
-    <div class="card" data-liquid-glass>
-      <h1 class="login-title">Welcome Back</h1>
-      <p class="login-subtitle">Sign in to connect with classmates</p>
-      <form id="login-form">
-        <div class="form-group">
-          <label class="form-label" for="login-username">Username / Student ID</label>
-          <input class="form-input" type="text" id="login-username" required autocomplete="username">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CS13 Graduation Memorial</title>
+    <link rel="stylesheet" href="static/css/style.css" />
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  </head>
+  <body class="public-page">
+    <main class="public-shell">
+      <section class="class-topbar" data-liquid-glass>
+        <div>
+          <span class="section-kicker">CS13 Class Site</span>
+          <h1 class="section-title">CS13 班級網站</h1>
+          <p class="section-copy">幹話、相簿、投票和聊天室入口都收在這裡。</p>
         </div>
-        <div class="form-group">
-          <label class="form-label" for="login-password">Password</label>
-          <input class="form-input" type="password" id="login-password" required autocomplete="current-password">
+        <nav class="topbar-actions" aria-label="Public shortcuts">
+          <a class="btn btn-secondary" href="#albums-section">相簿</a>
+          <a class="btn btn-secondary" href="#polls-section">投票</a>
+          <a class="btn" href="/static/app.html">後台</a>
+        </nav>
+      </section>
+
+      <section class="class-topbar quote-panel" data-liquid-glass>
+        <div class="quote-panel-main">
+          <span class="section-kicker">Teacher Quotes</span>
+          <h2 class="section-title">簡幸貞幹話牆</h2>
+          <div class="quote-text" id="quote-display">Loading...</div>
         </div>
-        <button class="btn login-btn" type="submit" id="submit-btn">Sign In</button>
-        <div class="error-message" id="error-message"></div>
-      </form>
-    </div>
-  </div>
+        <div class="quote-panel-actions">
+          <div class="quote-btn-group">
+            <button class="btn btn-secondary" id="copy-quote-btn">複製</button>
+            <button class="btn" id="next-quote-btn">換一句</button>
+          </div>
+          <form class="inline-form" id="public-quote-form">
+            <input
+              class="form-input"
+              type="text"
+              id="public-quote-input"
+              placeholder="新增一句簡幸貞幹話，不用登入也可以"
+              maxlength="120"
+              required
+            />
+            <button class="btn" type="submit">新增</button>
+          </form>
+        </div>
+      </section>
 
-  <div class="toast" id="toast-message"></div>
+      <section class="section-panel" id="albums-section" data-liquid-glass>
+        <div class="section-heading-row">
+          <div>
+            <span class="section-kicker">Albums</span>
+            <h2 class="section-title">班級相簿</h2>
+            <p class="section-copy">
+              不用登入就能看回憶，登入後可以新增相簿和上傳照片。
+            </p>
+          </div>
+          <a
+            class="btn btn-secondary auth-only-link"
+            href="/static/app.html#albums"
+            >新增相簿</a
+          >
+        </div>
+        <div class="album-grid" id="public-album-list">
+          <div class="empty-state">相簿載入中...</div>
+        </div>
+      </section>
 
-  <script src="static/js/app.js"></script>
-  <script type="module">
-    import { createLiquidGlass } from "https://esm.sh/solid-glass@0.0.3/engines/svg-refraction";
-    import { initPageEffects } from "/static/js/ui-effects.js";
+      <section class="section-panel" id="polls-section" data-liquid-glass>
+        <div class="section-heading-row">
+          <div>
+            <span class="section-kicker">Polls</span>
+            <h2 class="section-title">班級投票</h2>
+            <p class="section-copy">
+              公開觀看結果，登入後才能投票或建立新投票。
+            </p>
+          </div>
+          <a
+            class="btn btn-secondary auth-only-link"
+            href="/static/app.html#polls"
+            >建立投票</a
+          >
+        </div>
+        <div class="poll-list" id="public-poll-list">
+          <div class="empty-state">投票載入中...</div>
+        </div>
+      </section>
 
-    initPageEffects(createLiquidGlass);
-  </script>
-</body>
+      <section class="class-topbar login-section" id="login-section" data-liquid-glass>
+        <div>
+          <span class="section-kicker">Class Lounge</span>
+          <h2 class="section-title">登入後台</h2>
+          <p class="section-copy">
+            同學帳號登入後可以聊天、建立相簿、上傳照片、建立投票。
+          </p>
+        </div>
+        <form class="login-form-inline" id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="login-username"
+              >Username / Student ID</label
+            >
+            <input
+              class="form-input"
+              type="text"
+              id="login-username"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <input
+              class="form-input"
+              type="password"
+              id="login-password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <button class="btn login-btn" type="submit" id="submit-btn">
+            Sign In
+          </button>
+          <div class="error-message" id="error-message"></div>
+        </form>
+      </section>
+    </main>
+
+    <div class="toast" id="toast-message"></div>
+
+    <script src="static/js/app.js"></script>
+    <script type="module">
+      import { createLiquidGlass } from 'https://esm.sh/solid-glass@0.0.3/engines/svg-refraction';
+      import { initPageEffects } from '/static/js/ui-effects.js';
+
+      initPageEffects(createLiquidGlass);
+    </script>
+  </body>
 </html>

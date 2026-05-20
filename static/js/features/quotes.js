@@ -35,7 +35,9 @@ export function listenToQuotes() {
 
         setQuotes(firestoreQuotes);
       },
-      () => {},
+      (error) => {
+        console.error(error);
+      },
     );
 }
 
@@ -118,6 +120,14 @@ export function setupQuoteForms(currentUser, getDisplayName) {
   if (nextBtn && !nextBtn.dataset.bound) {
     nextBtn.dataset.bound = 'true';
     nextBtn.addEventListener('click', showRandomQuote);
+  }
+
+  const welcomeDisplay = document.getElementById('welcome-quote-display');
+  if (welcomeDisplay && !welcomeDisplay.dataset.bound) {
+    welcomeDisplay.dataset.bound = 'true';
+    welcomeDisplay.style.cursor = 'pointer';
+    welcomeDisplay.title = '點擊隨機更換';
+    welcomeDisplay.addEventListener('click', showRandomQuote);
   }
 
   const copyBtn = document.getElementById('copy-quote-btn');

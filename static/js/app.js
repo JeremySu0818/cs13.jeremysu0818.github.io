@@ -100,7 +100,7 @@ function initializeDashboard() {
 
   const welcomeTitle = document.getElementById('welcome-user-title');
   if (welcomeTitle) {
-    welcomeTitle.textContent = 'Welcome, ' + getDisplayName(currentUser);
+    welcomeTitle.textContent = '歡迎, ' + getDisplayName(currentUser);
   }
 
   const searchInput = document.getElementById('chat-search');

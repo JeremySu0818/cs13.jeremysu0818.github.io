@@ -84,7 +84,7 @@ export function addQuote(text, input, currentUser, getDisplayName) {
     .add({
       text: normalized,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      createdByName: currentUser ? getDisplayName(currentUser) : 'anonymous',
+      createdByName: currentUser ? getDisplayName(currentUser) : '匿名',
     })
     .then(() => {
       if (input) input.value = '';
@@ -138,7 +138,7 @@ export function setupQuoteForms(currentUser, getDisplayName) {
       if (
         display &&
         display.textContent &&
-        display.textContent !== 'Loading...'
+        display.textContent !== '載入中...'
       ) {
         navigator.clipboard.writeText(display.textContent).then(() => {
           showToast('幹話已複製😂');

@@ -75,13 +75,13 @@ export function listenToChats(currentUser, activatePanel, selectChatFn) {
           } else {
             const otherUid = chat.members.find((m) => m !== currentUser.uid);
             const otherUser = allUsers.find((u) => u.uid === otherUid);
-            const displayName = otherUser ? otherUser.name : 'Classmate';
+            const displayName = otherUser ? otherUser.name : '朋友';
             nameSpan.textContent = displayName;
             avatar.textContent = displayName.charAt(0).toUpperCase();
           }
 
           timeSpan.textContent = formatTime(chat.lastMessageTime);
-          msgSpan.textContent = chat.lastMessage || 'No messages yet';
+          msgSpan.textContent = chat.lastMessage || '尚未有訊息';
 
           nameRow.appendChild(nameSpan);
           nameRow.appendChild(timeSpan);
@@ -147,7 +147,7 @@ export function selectChat(chatId, currentUser) {
 
       if (chat.isGlobal) {
         title.textContent = chat.name;
-        membersText.textContent = 'Everyone in 13班';
+        membersText.textContent = '13 班的所有人';
         avatar.textContent = 'G';
       } else if (chat.isGroup) {
         title.textContent = chat.name;
@@ -158,10 +158,10 @@ export function selectChat(chatId, currentUser) {
       } else {
         const otherUid = chat.members.find((m) => m !== currentUser.uid);
         const otherUser = allUsers.find((u) => u.uid === otherUid);
-        const displayName = otherUser ? otherUser.name : 'Classmate';
+        const displayName = otherUser ? otherUser.name : '朋友';
         title.textContent = displayName;
         avatar.textContent = displayName.charAt(0).toUpperCase();
-        membersText.textContent = 'Direct Message';
+        membersText.textContent = '私人訊息';
       }
     });
 
@@ -260,12 +260,12 @@ export function resolveMemberNames(members, callback) {
       .doc(uid)
       .get()
       .then((doc) => {
-        names.push(doc.exists ? doc.data().name : 'Classmate');
+        names.push(doc.exists ? doc.data().name : '朋友');
         resolvedCount++;
         if (resolvedCount === members.length) callback(names);
       })
       .catch(() => {
-        names.push('Classmate');
+        names.push('朋友');
         resolvedCount++;
         if (resolvedCount === members.length) callback(names);
       });
@@ -416,7 +416,7 @@ export function setupNewChatModal(currentUser, selectChatFn) {
 
   submitBtn.addEventListener('click', () => {
     if (selectedStudents.length === 0) {
-      showToast('Please select at least one classmate.');
+      showToast('請至少選擇一位朋友😀');
       return;
     }
 
@@ -445,7 +445,7 @@ export function setupNewChatModal(currentUser, selectChatFn) {
     } else {
       const groupName = document.getElementById('group-chat-name').value.trim();
       if (!groupName) {
-        showToast('Please enter a group name.');
+        showToast('請輸入群組名稱😀');
         return;
       }
       createNewChat(groupName, true, members, selectChatFn, currentUser);
@@ -480,6 +480,6 @@ export function createNewChat(
       if (modal) modal.classList.remove('active');
     })
     .catch(() => {
-      showToast('Failed to create chat.');
+      showToast('建立聊天室失敗:(');
     });
 }

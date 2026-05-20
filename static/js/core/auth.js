@@ -59,12 +59,12 @@ export function setupChangePasswordForm(currentUser) {
     const errorMsg = document.getElementById('password-error-message');
 
     if (newPassword !== confirmPassword) {
-      errorMsg.textContent = 'Passwords do not match.';
+      errorMsg.textContent = '密碼不相符:(';
       return;
     }
 
     if (newPassword.length < 6) {
-      errorMsg.textContent = 'Password must be at least 6 characters.';
+      errorMsg.textContent = '密碼長度必須至少為 6 個字元🙃';
       return;
     }
 
@@ -81,7 +81,7 @@ export function setupChangePasswordForm(currentUser) {
       .then(() => {
         const modal = document.getElementById('change-password-modal');
         if (modal) modal.classList.remove('active');
-        showToast('Password updated successfully!');
+        showToast('密碼已成功更新！');
       })
       .catch((err) => {
         errorMsg.textContent = err.message;

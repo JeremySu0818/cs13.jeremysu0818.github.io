@@ -12,7 +12,7 @@
   <body class="app-page">
     <div class="app-layout">
       <aside class="sidebar">
-        <nav class="nav-menu" aria-label="Class hub navigation">
+        <nav class="nav-menu" aria-label="班級中心導覽">
           <button
             class="nav-item active"
             id="nav-home-btn"
@@ -278,7 +278,7 @@
           <div class="hub-overview">
             <span class="section-kicker">CS13 Class Hub</span>
             <h1 class="section-title" id="welcome-user-title">
-              Welcome to 介壽國中13班
+              歡迎來到介壽國中 13 班
             </h1>
             <p class="section-copy">聊天、相簿、投票和簡幸貞幹話都在這裡</p>
             <div class="quick-actions">
@@ -306,7 +306,7 @@
             <article class="mini-card">
               <span class="section-kicker">Quote</span>
               <div class="quote-text compact" id="welcome-quote-display">
-                Loading quote...
+                載入幹話中...
               </div>
             </article>
             <article class="mini-card">
@@ -326,8 +326,8 @@
           <div class="chat-sidebar" data-liquid-glass>
             <div class="chat-sidebar-header">
               <div class="chat-sidebar-title-row">
-                <h2 class="chat-sidebar-title">Chats</h2>
-                <button class="btn-icon" id="new-chat-trigger" title="New chat">
+                <h2 class="chat-sidebar-title">聊天室</h2>
+                <button class="btn-icon" id="new-chat-trigger" title="新聊天室">
                   <svg
                     width="18"
                     height="18"
@@ -346,7 +346,7 @@
                   class="search-input"
                   type="text"
                   id="chat-search"
-                  placeholder="Search chats..."
+                  placeholder="搜尋聊天室..."
                 />
               </div>
             </div>
@@ -366,7 +366,7 @@
                 <button
                   class="btn-icon chat-back-btn"
                   id="chat-back-btn"
-                  title="Back"
+                  title="返回"
                 >
                   <svg
                     width="20"
@@ -385,10 +385,10 @@
                   </div>
                   <div>
                     <div class="chat-header-title" id="active-chat-title">
-                      Group Chat
+                      群組聊天
                     </div>
                     <div class="chat-header-subtitle" id="active-chat-members">
-                      Members
+                      成員
                     </div>
                   </div>
                 </div>
@@ -403,7 +403,7 @@
                       class="chat-input"
                       type="text"
                       id="message-input"
-                      placeholder="Type a message..."
+                      placeholder="輸入訊息..."
                       required
                       autocomplete="off"
                     />
@@ -507,7 +507,7 @@
         <section class="hub-panel" id="quotes-panel" data-liquid-glass>
           <div class="section-heading-row">
             <div>
-              <span class="section-kicker">Teacher Quotes</span>
+              <span class="section-kicker">Horse Quotes</span>
               <h2 class="section-title">簡幸貞幹話牆</h2>
             </div>
           </div>
@@ -532,27 +532,27 @@
     <div class="modal-overlay" id="new-chat-modal">
       <div class="card modal-card" data-liquid-glass>
         <div class="modal-header">
-          <h3 class="modal-title">New Chat</h3>
+          <h3 class="modal-title">新聊天室</h3>
           <button class="close-btn" id="new-chat-close">&times;</button>
         </div>
         <div class="modal-body">
           <div class="form-group hidden" id="group-name-field">
-            <label class="form-label" for="group-chat-name">Group Name</label>
+            <label class="form-label" for="group-chat-name">群組名稱</label>
             <input
               class="form-input"
               type="text"
               id="group-chat-name"
-              placeholder="Enter group name..."
+              placeholder="輸入群組名稱..."
             />
           </div>
-          <label class="form-label">Select Classmates</label>
+          <label class="form-label">選擇朋友</label>
           <div class="student-select-list" id="student-list"></div>
         </div>
         <div class="quote-btn-group">
           <button class="btn btn-secondary" id="new-chat-cancel-btn">
-            Cancel
+            取消
           </button>
-          <button class="btn" id="create-chat-submit-btn">Create</button>
+          <button class="btn" id="create-chat-submit-btn">建立</button>
         </div>
       </div>
     </div>
@@ -560,16 +560,15 @@
     <div class="modal-overlay" id="change-password-modal">
       <div class="card modal-card" data-liquid-glass>
         <div class="modal-header">
-          <h3 class="modal-title">Change Password</h3>
+          <h3 class="modal-title">修改密碼</h3>
         </div>
         <div class="modal-body">
           <p class="login-subtitle modal-note">
-            For your account security, please update your temporary password
-            before entering the lounge.
+            為了你的帳號安全，請先更換密碼😀
           </p>
           <form id="change-password-form">
             <div class="form-group">
-              <label class="form-label" for="new-password">New Password</label>
+              <label class="form-label" for="new-password">新密碼</label>
               <input
                 class="form-input"
                 type="password"
@@ -580,7 +579,7 @@
             </div>
             <div class="form-group">
               <label class="form-label" for="confirm-password"
-                >Confirm Password</label
+                >確認新密碼</label
               >
               <input
                 class="form-input"
@@ -591,7 +590,7 @@
               />
             </div>
             <div class="error-message" id="password-error-message"></div>
-            <button class="btn login-btn" type="submit">Update Password</button>
+            <button class="btn login-btn" type="submit">更新密碼</button>
           </form>
         </div>
       </div>

@@ -22,7 +22,7 @@ export function formatTime(timestamp) {
 }
 
 export function getDisplayName(currentUser) {
-  return currentUser?.displayName || currentUser?.email || 'Classmate';
+  return currentUser?.displayName || currentUser?.email || '朋友';
 }
 
 export function getQuoteText(quote) {
@@ -85,7 +85,7 @@ function renderCompressedDataUrl(image) {
   }
 
   if (dataUrl.length > PHOTO_DATA_URL_LIMIT) {
-    throw new Error('Image is too large for Firestore after compression.');
+    throw new Error('圖片壓縮後仍然太大，無法上傳:(');
   }
 
   return dataUrl;

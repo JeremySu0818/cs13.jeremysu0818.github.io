@@ -10,13 +10,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="bg-glow">
-    <div class="glow-bubble bubble-1"></div>
-    <div class="glow-bubble bubble-2"></div>
-  </div>
-
   <div class="login-container">
-    <div class="card quote-card">
+    <div class="card quote-card" data-liquid-glass>
       <div class="quote-title">CS13 Memories</div>
       <div class="quote-text" id="quote-display">Loading...</div>
       <div class="quote-btn-group">
@@ -25,7 +20,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" data-liquid-glass>
       <h1 class="login-title">Welcome Back</h1>
       <p class="login-subtitle">Sign in to connect with classmates</p>
       <form id="login-form">
@@ -46,5 +41,11 @@
   <div class="toast" id="toast-message"></div>
 
   <script src="static/js/app.js"></script>
+  <script type="module">
+    import { createLiquidGlass } from "https://esm.sh/solid-glass@0.0.3/engines/svg-refraction";
+    import { initPageEffects } from "/static/js/ui-effects.js";
+
+    initPageEffects(createLiquidGlass);
+  </script>
 </body>
 </html>

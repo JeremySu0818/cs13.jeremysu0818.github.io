@@ -289,11 +289,9 @@ function listenToChats() {
         if (chat.isGlobal) {
           nameSpan.textContent = chat.name;
           avatar.textContent = "G";
-          avatar.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
         } else if (chat.isGroup) {
           nameSpan.textContent = chat.name;
           avatar.textContent = chat.name.charAt(0).toUpperCase();
-          avatar.style.background = "linear-gradient(135deg, #10b981, #059669)";
         } else {
           const otherUid = chat.members.find(m => m !== currentUser.uid);
           const otherUser = allUsers.find(u => u.uid === otherUid);
@@ -375,11 +373,9 @@ function selectChat(chatId) {
         title.textContent = chat.name;
         membersText.textContent = "Everyone in CS13";
         avatar.textContent = "G";
-        avatar.style.background = "linear-gradient(135deg, #f59e0b, #d97706)";
       } else if (chat.isGroup) {
         title.textContent = chat.name;
         avatar.textContent = chat.name.charAt(0).toUpperCase();
-        avatar.style.background = "linear-gradient(135deg, #10b981, #059669)";
         resolveMemberNames(chat.members, names => {
           membersText.textContent = names.join(", ");
         });
@@ -389,7 +385,6 @@ function selectChat(chatId) {
         const displayName = otherUser ? otherUser.name : "Classmate";
         title.textContent = displayName;
         avatar.textContent = displayName.charAt(0).toUpperCase();
-        avatar.style.background = "linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)";
         membersText.textContent = "Direct Message";
       }
     }
@@ -593,9 +588,9 @@ function renderStudentList() {
 
       const groupNameField = document.getElementById("group-name-field");
       if (selectedStudents.length > 1) {
-        groupNameField.style.display = "block";
+        groupNameField.classList.remove("hidden");
       } else {
-        groupNameField.style.display = "none";
+        groupNameField.classList.add("hidden");
       }
     });
 
@@ -615,7 +610,7 @@ function setupNewChatModal() {
   trigger.addEventListener("click", () => {
     renderStudentList();
     document.getElementById("group-chat-name").value = "";
-    document.getElementById("group-name-field").style.display = "none";
+    document.getElementById("group-name-field").classList.add("hidden");
     modal.classList.add("active");
   });
 

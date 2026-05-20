@@ -10,11 +10,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="bg-glow">
-    <div class="glow-bubble bubble-1"></div>
-    <div class="glow-bubble bubble-2"></div>
-  </div>
-
   <div class="app-layout">
     <aside class="sidebar">
       <div class="logo-container">CS</div>
@@ -37,7 +32,7 @@
       </div>
     </aside>
 
-    <div class="chat-sidebar">
+    <div class="chat-sidebar" data-liquid-glass>
       <div class="chat-sidebar-header">
         <div class="chat-sidebar-title-row">
           <h2 class="chat-sidebar-title">Chats</h2>
@@ -55,7 +50,7 @@
       <div class="chat-list" id="chat-list-container"></div>
     </div>
 
-    <main class="chat-content">
+    <main class="chat-content" data-liquid-glass>
       <div class="welcome-screen" id="welcome-screen">
         <h2 class="welcome-title" id="welcome-user-title">Welcome to CS13 Lounge</h2>
         <p class="welcome-subtitle">Select a classmate or group to start chatting, or browse memories below</p>
@@ -65,7 +60,7 @@
         </div>
       </div>
 
-      <div class="chat-content-placeholder hidden" id="chat-main-area" style="display: flex; flex-direction: column; height: 100%;">
+      <div class="chat-content-placeholder hidden" id="chat-main-area">
         <div class="chat-header">
           <div class="chat-header-info">
             <div class="chat-header-avatar" id="active-chat-avatar">-</div>
@@ -96,13 +91,13 @@
   </div>
 
   <div class="modal-overlay" id="new-chat-modal">
-    <div class="card modal-card">
+    <div class="card modal-card" data-liquid-glass>
       <div class="modal-header">
         <h3 class="modal-title">New Chat</h3>
         <button class="close-btn" id="new-chat-close">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="form-group" id="group-name-field" style="display: none;">
+        <div class="form-group hidden" id="group-name-field">
           <label class="form-label" for="group-chat-name">Group Name</label>
           <input class="form-input" type="text" id="group-chat-name" placeholder="Enter group name...">
         </div>
@@ -117,12 +112,12 @@
   </div>
 
   <div class="modal-overlay" id="change-password-modal">
-    <div class="card modal-card">
+    <div class="card modal-card" data-liquid-glass>
       <div class="modal-header">
         <h3 class="modal-title">Change Password</h3>
       </div>
       <div class="modal-body">
-        <p class="login-subtitle" style="text-align: left; margin-bottom: 20px;">
+        <p class="login-subtitle modal-note">
           For your account security, please update your temporary password before entering the lounge.
         </p>
         <form id="change-password-form">
@@ -144,5 +139,11 @@
   <div class="toast" id="toast-message"></div>
 
   <script src="js/app.js"></script>
+  <script type="module">
+    import { createLiquidGlass } from "https://esm.sh/solid-glass@0.0.3/engines/svg-refraction";
+    import { initPageEffects } from "/static/js/ui-effects.js";
+
+    initPageEffects(createLiquidGlass);
+  </script>
 </body>
 </html>

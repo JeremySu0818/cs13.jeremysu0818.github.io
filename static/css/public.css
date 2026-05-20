@@ -1,0 +1,88 @@
+.public-shell {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.class-topbar {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.topbar-actions,
+.quick-actions,
+.quote-btn-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.quote-panel-main {
+  flex: 1 1 340px;
+}
+
+.quote-panel-actions {
+  flex: 1 1 520px;
+  display: grid;
+  gap: 18px;
+}
+
+.quote-title {
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.quote-text {
+  min-height: 4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 18px 0 24px;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  line-height: 1.55;
+  text-align: left;
+}
+
+.quote-text.compact {
+  min-height: auto;
+  margin: 12px 0 0;
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 1.05rem;
+}
+
+.inline-form {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.login-section {
+  padding: 28px;
+}
+
+.login-section.signed-in .login-form-inline {
+  display: none;
+}
+
+.login-form-inline {
+  flex: 1 1 360px;
+  display: grid;
+  gap: 0;
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 4px;
+}

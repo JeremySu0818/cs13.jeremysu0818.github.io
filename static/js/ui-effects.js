@@ -11,15 +11,18 @@ const BACKGROUNDS = Object.freeze([
   '/static/images/backgrounds/10.jpg',
 ]);
 
-const GLASS_OPTIONS = Object.freeze({
-  radius: 60,
-  bezelWidth: 20,
-  glassThickness: 300,
-  blur: 0,
-  refractiveIndex: 1.5,
-  surface: 'convexSquircle',
-  specularOpacity: 1,
-});
+function getGlassOptions() {
+  const isMobile = window.matchMedia('(max-width: 760px)').matches;
+  return {
+    radius: isMobile ? 32 : 60,
+    bezelWidth: 20,
+    glassThickness: 300,
+    blur: 0,
+    refractiveIndex: 1.5,
+    surface: 'convexSquircle',
+    specularOpacity: 1,
+  };
+}
 
 function pickRandomBackground() {
   return BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)];
@@ -54,7 +57,7 @@ function mountGlassFilter(createLiquidGlass, element, registry) {
   const glass = createLiquidGlass({
     width,
     height,
-    ...GLASS_OPTIONS,
+    ...getGlassOptions(),
   });
 
   const holder = document.createElement('div');

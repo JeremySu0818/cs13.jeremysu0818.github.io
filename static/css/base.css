@@ -1,0 +1,93 @@
+:root {
+  --page-background: none;
+  --page-overlay: rgba(255, 255, 255, 0.1);
+  --surface: rgba(255, 255, 255, 0.14);
+  --surface-strong: rgba(255, 255, 255, 0.28);
+  --surface-input: rgba(255, 255, 255, 0.86);
+  --surface-hover: rgba(255, 255, 255, 0.22);
+  --line: rgba(255, 255, 255, 0.58);
+  --line-soft: rgba(255, 255, 255, 0.28);
+  --text: #182026;
+  --muted: rgba(24, 32, 38, 0.68);
+  --muted-strong: rgba(20, 22, 24, 0.62);
+  --ink: #151719;
+  --button: #f4f4f5;
+  --button-text: #101114;
+  --danger: #9f1d1d;
+  --radius-lg: 34px;
+  --radius-md: 22px;
+  --shadow-soft: 0 24px 80px rgba(42, 45, 48, 0.16);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Noto Sans TC", "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  background-color: #e6e2d9;
+  background-image: linear-gradient(var(--page-overlay), var(--page-overlay)), var(--page-background);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+body.app-page {
+  overflow: hidden;
+}
+
+body.public-page {
+  overflow-x: hidden;
+  padding: 18px;
+}
+
+body,
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button,
+input,
+textarea {
+  appearance: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+img,
+svg {
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.hidden {
+  display: none !important;
+}

@@ -1,0 +1,154 @@
+@media (max-width: 1100px) {
+  body.app-page {
+    overflow: auto;
+  }
+
+  .app-layout {
+    min-height: 100vh;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+    padding: 12px 16px;
+    flex-direction: row;
+  }
+
+  .nav-menu,
+  .profile-container {
+    flex-direction: row;
+  }
+
+  .hub-main,
+  .hub-panel {
+    min-height: 70vh;
+  }
+
+  .chat-panel.active {
+    flex-direction: column;
+  }
+
+  .chat-sidebar {
+    flex: 0 0 260px;
+    width: 100%;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  body.public-page {
+    padding: 10px;
+  }
+
+  .class-topbar,
+  .section-heading-row,
+  .login-section {
+    flex-direction: column;
+  }
+
+  .class-topbar {
+    align-items: stretch;
+    border-radius: 32px;
+  }
+
+  .topbar-actions,
+  .quick-actions,
+  .quote-btn-group {
+    width: 100%;
+  }
+
+  .topbar-actions .btn,
+  .quick-actions .btn,
+  .quote-btn-group .btn {
+    flex: 1;
+  }
+
+  .inline-form {
+    grid-template-columns: 1fr;
+  }
+
+  .section-panel,
+  .login-section,
+  .hub-panel {
+    padding: 22px;
+    border-radius: 32px;
+  }
+
+  [data-liquid-glass] {
+    border-radius: 32px;
+  }
+
+  .card,
+  .modal-card,
+  .section-panel,
+  .class-topbar,
+  .hub-panel,
+  .chat-sidebar,
+  .chat-content {
+    box-shadow: none;
+  }
+
+  .nav-item {
+    width: auto;
+    min-width: 48px;
+  }
+
+  .chat-sidebar {
+    flex-basis: 230px;
+  }
+
+  .chat-sidebar-header,
+  .chat-header,
+  .chat-input-area,
+  .message-area,
+  .welcome-screen {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .message-group {
+    max-width: 88%;
+  }
+}
+
+@media (max-width: 520px) {
+  .sidebar {
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .nav-menu {
+    flex: 1;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .nav-label {
+    font-size: 0.66rem;
+  }
+
+  .profile-container {
+    gap: 6px;
+  }
+
+  .avatar-circle,
+  #logout-btn {
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+  }
+
+  .chat-input-form {
+    gap: 10px;
+  }
+
+  .message-group {
+    max-width: 94%;
+  }
+}

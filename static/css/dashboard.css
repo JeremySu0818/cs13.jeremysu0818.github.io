@@ -185,3 +185,21 @@
   padding: 16px;
   line-height: 1.6;
 }
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.nav-item .icon-active {
+  display: none;
+}
+
+.nav-item.active .icon-active {
+  display: block;
+}
+
+.nav-item.active .icon-inactive {
+  display: none;
+}

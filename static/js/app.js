@@ -95,7 +95,7 @@ function listenToQuotes() {
 function showRandomQuote() {
   const quote =
     quotes.length === 0
-      ? '還沒有幹話，先新增第一句吧。'
+      ? '目前還沒有幸貞的幹話，來新增第一句吧:)'
       : getQuoteText(quotes[Math.floor(Math.random() * quotes.length)]);
   const displays = [
     document.getElementById('quote-display'),
@@ -113,7 +113,9 @@ function renderQuoteWall() {
 
   wall.innerHTML = '';
   if (quotes.length === 0) {
-    wall.appendChild(createEmptyState('還沒有幹話，先新增第一句。'));
+    wall.appendChild(
+      createEmptyState('目前還沒有幸貞的幹話，來新增第一句吧:)'),
+    );
     return;
   }
 
@@ -144,10 +146,10 @@ function addQuote(text, input) {
     })
     .then(() => {
       if (input) input.value = '';
-      showToast('幹話新增成功！');
+      showToast('幹話新增成功😎');
     })
     .catch(() => {
-      showToast('幹話新增失敗，請確認 Firestore rules。');
+      showToast('幹話新增失敗:(');
     });
 }
 
@@ -189,7 +191,7 @@ function setupQuoteForms() {
         display.textContent !== 'Loading...'
       ) {
         navigator.clipboard.writeText(display.textContent).then(() => {
-          showToast('幹話已複製！');
+          showToast('幹話已複製😂');
         });
       }
     });
@@ -221,21 +223,83 @@ function initializePublicPage() {
   setupLoginForm();
   listenToAlbums();
   listenToPolls();
+  setupPublicTabs();
 }
 
 function updatePublicAuthState() {
   const loginSection = document.getElementById('login-section');
   if (!loginSection) return;
 
+  const tabLogin = document.getElementById('tab-login');
+  const tabApp = document.getElementById('tab-app');
+
   if (currentUser) {
     loginSection.classList.add('signed-in');
     const title = loginSection.querySelector('.section-title');
     const copy = loginSection.querySelector('.section-copy');
     if (title) title.textContent = '已登入';
-    if (copy) copy.textContent = '可以直接進入班級後台新增相簿、投票或聊天。';
+    if (copy) copy.textContent = '可以直接進入班級後台新增相簿、投票或聊天 😀 ';
+    if (tabLogin) tabLogin.classList.add('hidden');
+    if (tabApp) tabApp.classList.remove('hidden');
   } else {
     loginSection.classList.remove('signed-in');
+    if (tabLogin) tabLogin.classList.remove('hidden');
+    if (tabApp) tabApp.classList.add('hidden');
   }
+}
+
+function setupPublicTabs() {
+  const tabs = [
+    { buttonId: 'tab-quote', sectionId: 'quote-section' },
+    { buttonId: 'tab-albums', sectionId: 'albums-section' },
+    { buttonId: 'tab-polls', sectionId: 'polls-section' },
+    { buttonId: 'tab-login', sectionId: 'login-section' },
+  ];
+
+  function activateTab(targetSectionId) {
+    tabs.forEach(({ buttonId, sectionId }) => {
+      const btn = document.getElementById(buttonId);
+      const sec = document.getElementById(sectionId);
+      if (sec) {
+        if (sectionId === targetSectionId) {
+          sec.classList.remove('hidden');
+        } else {
+          sec.classList.add('hidden');
+        }
+      }
+      if (btn) {
+        if (sectionId === targetSectionId) {
+          btn.classList.remove('btn-secondary');
+        } else {
+          btn.classList.add('btn-secondary');
+        }
+      }
+    });
+  }
+
+  tabs.forEach(({ buttonId, sectionId }) => {
+    const btn = document.getElementById(buttonId);
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        location.hash = sectionId;
+        activateTab(sectionId);
+      });
+    }
+  });
+
+  function handleHash() {
+    const hash = location.hash.replace('#', '');
+    const validSections = tabs.map((t) => t.sectionId);
+    if (validSections.includes(hash)) {
+      activateTab(hash);
+    } else {
+      activateTab('quote-section');
+    }
+  }
+
+  window.addEventListener('hashchange', handleHash);
+  handleHash();
 }
 
 function setupLoginForm() {
@@ -464,7 +528,7 @@ function renderAlbums(albums) {
     container.innerHTML = '';
     if (albums.length === 0) {
       container.appendChild(
-        createEmptyState('還沒有相簿，登入後可以建立第一本。'),
+        createEmptyState('目前還沒有相簿...登入後可以建立第一本😀'),
       );
       return;
     }
@@ -497,7 +561,7 @@ function createAlbumCard(album) {
   title.textContent = album.title || '未命名相簿';
 
   const desc = document.createElement('p');
-  desc.textContent = album.description || '沒有描述，但照片會說話。';
+  desc.textContent = album.description || '沒有描述...';
 
   const photos = document.createElement('div');
   photos.className = 'photo-strip';
@@ -521,7 +585,7 @@ function loadAlbumPhotos(albumId, target) {
     .then((snapshot) => {
       target.innerHTML = '';
       if (snapshot.empty) {
-        target.appendChild(createEmptyState('還沒有照片。'));
+        target.appendChild(createEmptyState('還沒有照片...'));
         return;
       }
 
@@ -544,7 +608,7 @@ function setupAlbumForm() {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!currentUser) {
-      showToast('請先登入才能新增相簿。');
+      showToast('先登入才能新增相簿 😀 ');
       return;
     }
 
@@ -555,7 +619,7 @@ function setupAlbumForm() {
     const safeFiles = files.filter((file) => file.type.startsWith('image/'));
 
     if (!titleInput.value.trim() || safeFiles.length === 0) {
-      showToast('請輸入相簿名稱並選擇照片。');
+      showToast('輸入相簿名稱並選擇照片');
       return;
     }
 
@@ -594,7 +658,7 @@ function setupAlbumForm() {
         showToast('相簿建立成功！');
       })
       .catch(() => {
-        showToast('相簿建立失敗，請確認圖片大小或 Firestore rules。');
+        showToast('相簿建立失敗:(');
       })
       .finally(() => {
         submit.disabled = false;
@@ -703,7 +767,7 @@ function setupPollForm() {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!currentUser) {
-      showToast('請先登入才能建立投票。');
+      showToast('先登入才能建立投票 😀 ');
       return;
     }
 
@@ -718,7 +782,7 @@ function setupPollForm() {
     ).checked;
 
     if (!question || options.length < 2) {
-      showToast('請輸入問題，並至少提供兩個選項。');
+      showToast('輸入問題，並至少提供兩個選項 😀 ');
       return;
     }
 
@@ -737,7 +801,7 @@ function setupPollForm() {
         showToast('投票建立成功！');
       })
       .catch(() => {
-        showToast('投票建立失敗，請確認 Firestore rules。');
+        showToast('投票建立失敗:(');
       });
   });
 }
@@ -752,7 +816,7 @@ function renderPolls(polls) {
     container.innerHTML = '';
     if (polls.length === 0) {
       container.appendChild(
-        createEmptyState('還沒有投票，登入後可以建立第一題。'),
+        createEmptyState('還沒有投票，登入後可以建立第一題😀'),
       );
       return;
     }
@@ -870,7 +934,7 @@ function hydratePollVotes(poll, card) {
 
 function submitVote(poll, form) {
   if (!currentUser) {
-    showToast('請先登入才能投票。');
+    showToast('先登入才能投票 😀 ');
     return;
   }
 
@@ -879,7 +943,7 @@ function submitVote(poll, form) {
   );
 
   if (choices.length === 0) {
-    showToast('請至少選一個選項。');
+    showToast('至少選一個選項 😀 ');
     return;
   }
 
@@ -897,7 +961,7 @@ function submitVote(poll, form) {
       if (card) hydratePollVotes(poll, card);
     })
     .catch(() => {
-      showToast('投票失敗，請確認 Firestore rules。');
+      showToast('投票失敗:(');
     });
 }
 

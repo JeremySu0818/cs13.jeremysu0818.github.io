@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CS13 Graduation Memorial</title>
+    <title>介壽國中13班網站</title>
     <link rel="stylesheet" href="static/css/style.css" />
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -15,18 +15,31 @@
         <div>
           <span class="section-kicker">CS13 Class Site</span>
           <h1 class="section-title">CS13 班級網站</h1>
-          <p class="section-copy">幹話、相簿、投票和聊天室入口都收在這裡。</p>
         </div>
         <nav class="topbar-actions" aria-label="Public shortcuts">
-          <a class="btn btn-secondary" href="#albums-section">相簿</a>
-          <a class="btn btn-secondary" href="#polls-section">投票</a>
-          <a class="btn" href="/static/app.html">後台</a>
+          <a class="btn btn-secondary" href="#quote-section" id="tab-quote"
+            >幹話</a
+          >
+          <a class="btn btn-secondary" href="#albums-section" id="tab-albums"
+            >相簿</a
+          >
+          <a class="btn btn-secondary" href="#polls-section" id="tab-polls"
+            >投票</a
+          >
+          <a class="btn btn-secondary" href="#login-section" id="tab-login"
+            >登入</a
+          >
+          <a class="btn hidden" href="/static/app.html" id="tab-app">後台</a>
         </nav>
       </section>
 
-      <section class="class-topbar quote-panel" data-liquid-glass>
+      <section
+        class="class-topbar quote-panel"
+        id="quote-section"
+        data-liquid-glass
+      >
         <div class="quote-panel-main">
-          <span class="section-kicker">Teacher Quotes</span>
+          <span class="section-kicker">Horse Quotes</span>
           <h2 class="section-title">簡幸貞幹話牆</h2>
           <div class="quote-text" id="quote-display">Loading...</div>
         </div>
@@ -40,7 +53,7 @@
               class="form-input"
               type="text"
               id="public-quote-input"
-              placeholder="新增一句簡幸貞幹話，不用登入也可以"
+              placeholder="新增一句簡幸貞幹話吧，不用登入也可以👍"
               maxlength="120"
               required
             />
@@ -49,13 +62,17 @@
         </div>
       </section>
 
-      <section class="section-panel" id="albums-section" data-liquid-glass>
+      <section
+        class="section-panel hidden"
+        id="albums-section"
+        data-liquid-glass
+      >
         <div class="section-heading-row">
           <div>
             <span class="section-kicker">Albums</span>
             <h2 class="section-title">班級相簿</h2>
             <p class="section-copy">
-              不用登入就能看回憶，登入後可以新增相簿和上傳照片。
+              不需登入就能看照片🥵登入後可以新增相簿和上傳照片
             </p>
           </div>
           <a
@@ -69,13 +86,17 @@
         </div>
       </section>
 
-      <section class="section-panel" id="polls-section" data-liquid-glass>
+      <section
+        class="section-panel hidden"
+        id="polls-section"
+        data-liquid-glass
+      >
         <div class="section-heading-row">
           <div>
             <span class="section-kicker">Polls</span>
             <h2 class="section-title">班級投票</h2>
             <p class="section-copy">
-              公開觀看結果，登入後才能投票或建立新投票。
+              公開觀看結果，登入後才能投票或建立新投票 😀
             </p>
           </div>
           <a
@@ -89,19 +110,21 @@
         </div>
       </section>
 
-      <section class="class-topbar login-section" id="login-section" data-liquid-glass>
+      <section
+        class="class-topbar login-section hidden"
+        id="login-section"
+        data-liquid-glass
+      >
         <div>
           <span class="section-kicker">Class Lounge</span>
-          <h2 class="section-title">登入後台</h2>
+          <h2 class="section-title">登入</h2>
           <p class="section-copy">
-            同學帳號登入後可以聊天、建立相簿、上傳照片、建立投票。
+            登入後可以聊天、建立相簿、上傳照片、建立投票😲
           </p>
         </div>
         <form class="login-form-inline" id="login-form">
           <div class="form-group">
-            <label class="form-label" for="login-username"
-              >Username / Student ID</label
-            >
+            <label class="form-label" for="login-username">Username</label>
             <input
               class="form-input"
               type="text"

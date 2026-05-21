@@ -1,3 +1,8 @@
+import {
+  persistentLocalCache,
+  persistentMultipleTabManager
+} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
 const firebaseConfig = {
   apiKey: 'AIzaSyCosLad47n5SXSdkYUx4NRm7xzjJmzz_QA',
   authDomain: 'cs13-91fc7.firebaseapp.com',
@@ -15,4 +20,9 @@ if (!firebase.apps.length) {
 export const auth = firebase.auth();
 export const db = firebase.firestore();
 
-db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+db.settings({
+  merge: true,
+  cache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});

@@ -22,6 +22,10 @@
   padding: 28px;
 }
 
+.album-edit-modal {
+  width: min(100%, 640px);
+}
+
 .modal-header {
   display: flex;
   align-items: center;
@@ -64,6 +68,11 @@
   background: rgba(255, 255, 255, 0.12);
 }
 
+.album-collaborator-list {
+  max-height: 180px;
+  margin-bottom: 12px;
+}
+
 .student-select-item {
   display: flex;
   align-items: center;
@@ -104,6 +113,86 @@
 
 .student-select-name {
   font-weight: 600;
+}
+
+.album-edit-photo-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.album-edit-photo-item {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.album-edit-photo-item img {
+  display: block;
+  width: 100%;
+  height: 86px;
+  object-fit: cover;
+}
+
+.album-edit-photo-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--danger);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.album-edit-photo-item.marked-remove img {
+  opacity: 0.35;
+}
+
+.album-edit-photo-item.marked-remove::after {
+  content: '將移除';
+  position: absolute;
+  inset: auto 8px 8px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--danger);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.album-edit-add-photo {
+  display: grid;
+  place-items: center;
+  min-height: 86px;
+  border-style: dashed;
+  color: var(--muted);
+  font-size: 2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.album-edit-add-photo:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.album-edit-file-picker {
+  margin-top: 12px;
 }
 
 .toast {

@@ -166,14 +166,17 @@
 }
 
 .album-card {
-  overflow: hidden;
+  position: relative;
+  overflow: visible;
 }
 
 .album-cover {
   height: 170px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
   background: rgba(255, 255, 255, 0.18);
   color: var(--muted);
   font-weight: 900;
@@ -184,6 +187,24 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.album-action-wrap {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.album-menu-button {
+  position: relative;
+  z-index: 2;
+  opacity: 1;
+}
+
+.album-action-menu {
+  top: 0;
+  right: calc(100% + 8px);
 }
 
 .album-body {
@@ -217,6 +238,13 @@
   height: auto;
   object-fit: contain;
   border-radius: 12px;
+}
+
+.photo-strip .empty-state {
+  grid-column: 1 / -1;
+  min-height: 132px;
+  display: grid;
+  place-items: center;
 }
 
 .poll-list {

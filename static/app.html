@@ -455,36 +455,43 @@
               <p class="section-copy">建立相簿、選擇照片</p>
             </div>
           </div>
-          <form class="feature-form" id="album-form">
-            <input
-              class="form-input"
-              type="text"
-              id="album-title"
-              placeholder="相簿名稱"
-              maxlength="50"
-              required
-            />
-            <textarea
-              class="form-input"
-              id="album-description"
-              placeholder="相簿描述"
-              maxlength="160"
-            ></textarea>
-            <div class="file-upload-wrapper">
-              <label for="album-files" class="file-upload-label">
-                <span id="file-upload-status">選擇上傳照片 (可多選)</span>
-              </label>
+          <div class="album-form-shell" id="album-form-shell">
+            <form class="feature-form" id="album-form">
               <input
-                type="file"
-                id="album-files"
-                accept="image/*"
-                multiple
+                class="form-input"
+                type="text"
+                id="album-title"
+                placeholder="相簿名稱"
+                maxlength="50"
                 required
-                class="file-input-hidden"
               />
-            </div>
-            <button class="btn" type="submit">建立相簿</button>
-          </form>
+              <textarea
+                class="form-input"
+                id="album-description"
+                placeholder="相簿描述"
+                maxlength="160"
+              ></textarea>
+              <div class="file-upload-wrapper">
+                <label for="album-files" class="file-upload-label">
+                  <span id="file-upload-status">選擇上傳照片 (可多選)</span>
+                </label>
+                <input
+                  type="file"
+                  id="album-files"
+                  accept="image/*"
+                  multiple
+                  required
+                  class="file-input-hidden"
+                />
+              </div>
+              <label class="form-label">協作者</label>
+              <div
+                class="student-select-list album-collaborator-list"
+                id="album-collaborator-list"
+              ></div>
+              <button class="btn" type="submit">建立相簿</button>
+            </form>
+          </div>
           <button
             class="btn btn-secondary album-form-toggle"
             type="button"
@@ -670,6 +677,59 @@
           </button>
           <button class="btn" id="create-chat-submit-btn">建立</button>
         </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="edit-album-modal">
+      <div class="card modal-card album-edit-modal" data-liquid-glass>
+        <div class="modal-header">
+          <h3 class="modal-title">編輯相簿</h3>
+          <button class="close-btn" id="edit-album-close">&times;</button>
+        </div>
+        <form id="edit-album-form">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label" for="edit-album-title">相簿名稱</label>
+              <input
+                class="form-input"
+                type="text"
+                id="edit-album-title"
+                maxlength="50"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-album-description">
+                相簿描述
+              </label>
+              <textarea
+                class="form-input"
+                id="edit-album-description"
+                maxlength="160"
+              ></textarea>
+            </div>
+            <label class="form-label">照片</label>
+            <div class="album-edit-photo-list" id="edit-album-photo-list"></div>
+            <label class="form-label">協作者</label>
+            <div
+              class="student-select-list album-collaborator-list"
+              id="edit-album-collaborator-list"
+            ></div>
+            <input
+              type="file"
+              id="edit-album-files"
+              accept="image/*"
+              multiple
+              class="file-input-hidden"
+            />
+          </div>
+          <div class="quote-btn-group">
+            <button class="btn btn-secondary" type="button" id="edit-album-cancel">
+              取消
+            </button>
+            <button class="btn" type="submit">儲存變更</button>
+          </div>
+        </form>
       </div>
     </div>
 

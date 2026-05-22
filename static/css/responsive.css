@@ -7,7 +7,7 @@
     height: 100vh;
     height: 100dvh;
     flex-direction: column;
-    row-gap: 0;
+    row-gap: 10px;
   }
 
   .sidebar {

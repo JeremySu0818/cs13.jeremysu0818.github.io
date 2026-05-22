@@ -134,6 +134,9 @@ function initializeDashboard() {
   } else if (location.hash === '#profile') {
     activatePanel('profile-panel');
   }
+
+  window.addEventListener('resize', updateNavIndicator);
+  requestAnimationFrame(updateNavIndicator);
 }
 
 function updatePublicAuthState() {
@@ -245,7 +248,23 @@ function activatePanel(panelId) {
     button.classList.toggle('active', button.dataset.panel === panelId);
   });
 
+  updateNavIndicator();
   requestAnimationFrame(refreshLiquidGlass);
+}
+
+function updateNavIndicator() {
+  const activeBtn = document.querySelector('.nav-menu .nav-item.active');
+  const indicator = document.querySelector('.nav-indicator');
+  if (!indicator) return;
+
+  if (activeBtn) {
+    indicator.style.width = `${activeBtn.offsetWidth}px`;
+    indicator.style.height = `${activeBtn.offsetHeight}px`;
+    indicator.style.transform = `translate3d(${activeBtn.offsetLeft}px, ${activeBtn.offsetTop}px, 0)`;
+    indicator.style.opacity = '1';
+  } else {
+    indicator.style.opacity = '0';
+  }
 }
 
 function refreshLiquidGlass() {

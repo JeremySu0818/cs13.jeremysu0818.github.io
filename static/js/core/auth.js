@@ -53,7 +53,7 @@ export function setupLoginForm() {
     resolveLoginEmail(username)
       .then((email) => signInWithResolvedEmail(username, email, password))
       .then(() => {
-        location.href = '/static/app.html';
+        location.href = '/app/';
       })
       .catch((err) => {
         submitBtn.disabled = false;

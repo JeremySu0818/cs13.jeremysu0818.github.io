@@ -20,8 +20,19 @@ import {
   setupProfileSettings,
 } from './core/auth.js';
 
-const isAppPage = location.pathname.includes('app.html');
+const isAppPage = location.pathname.replace(/\/$/, '') === '/app';
 const isPublicPage = !isAppPage;
+const dashboardRoutes = {
+  home: 'home-panel',
+  chat: 'chat-panel',
+  albums: 'albums-panel',
+  polls: 'polls-panel',
+  quotes: 'quotes-panel',
+  profile: 'profile-panel',
+};
+const dashboardPanelRoutes = Object.fromEntries(
+  Object.entries(dashboardRoutes).map(([route, panelId]) => [panelId, route]),
+);
 
 let currentUser = null;
 let publicInitialized = false;
@@ -33,7 +44,7 @@ auth.onAuthStateChanged((user) => {
   currentUser = user;
 
   if (isAppPage && !user) {
-    location.href = '/index.html';
+    location.href = '/';
     return;
   }
 
@@ -127,13 +138,8 @@ function initializeDashboard() {
     });
   }
 
-  if (location.hash === '#albums') {
-    activatePanel('albums-panel');
-  } else if (location.hash === '#polls') {
-    activatePanel('polls-panel');
-  } else if (location.hash === '#profile') {
-    activatePanel('profile-panel');
-  }
+  handleDashboardHash();
+  window.addEventListener('hashchange', handleDashboardHash);
 
   window.addEventListener('resize', updateNavIndicator);
   requestAnimationFrame(updateNavIndicator);
@@ -166,10 +172,10 @@ function updatePublicAuthState() {
 
 function setupPublicTabs() {
   const tabs = [
-    { buttonId: 'tab-quote', sectionId: 'quote-section' },
-    { buttonId: 'tab-albums', sectionId: 'albums-section' },
-    { buttonId: 'tab-polls', sectionId: 'polls-section' },
-    { buttonId: 'tab-login', sectionId: 'login-section' },
+    { buttonId: 'tab-quote', route: 'quote', sectionId: 'quote-section' },
+    { buttonId: 'tab-albums', route: 'albums', sectionId: 'albums-section' },
+    { buttonId: 'tab-polls', route: 'polls', sectionId: 'polls-section' },
+    { buttonId: 'tab-login', route: 'login', sectionId: 'login-section' },
   ];
 
   function activateTab(targetSectionId) {
@@ -195,12 +201,12 @@ function setupPublicTabs() {
     }
   }
 
-  tabs.forEach(({ buttonId, sectionId }) => {
+  tabs.forEach(({ buttonId, route, sectionId }) => {
     const btn = document.getElementById(buttonId);
     if (btn) {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        location.hash = sectionId;
+        location.hash = route;
         activateTab(sectionId);
       });
     }
@@ -208,9 +214,9 @@ function setupPublicTabs() {
 
   function handleHash() {
     const hash = location.hash.replace('#', '');
-    const validSections = tabs.map((t) => t.sectionId);
-    if (validSections.includes(hash)) {
-      activateTab(hash);
+    const tab = tabs.find((t) => t.route === hash);
+    if (tab) {
+      activateTab(tab.sectionId);
     } else {
       activateTab('quote-section');
     }
@@ -248,8 +254,18 @@ function activatePanel(panelId) {
     button.classList.toggle('active', button.dataset.panel === panelId);
   });
 
+  const route = dashboardPanelRoutes[panelId];
+  if (route && location.hash !== `#${route}`) {
+    location.hash = route;
+  }
+
   updateNavIndicator();
   requestAnimationFrame(refreshLiquidGlass);
+}
+
+function handleDashboardHash() {
+  const route = location.hash.replace('#', '');
+  activatePanel(dashboardRoutes[route] || 'home-panel');
 }
 
 function updateNavIndicator() {

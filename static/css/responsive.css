@@ -110,6 +110,12 @@
     grid-template-columns: 1fr;
   }
 
+  .quote-panel-main,
+  .quote-panel-actions,
+  .login-form-inline {
+    flex: none;
+  }
+
   .section-panel,
   .login-section,
   .hub-panel {

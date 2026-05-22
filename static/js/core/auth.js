@@ -1,6 +1,7 @@
 import { auth, db } from './firebase-init.js';
 import { compressImageFile, showToast } from './utils.js';
 
+const AUTH_EMAIL_DOMAIN = '@cs13.class';
 const RESERVED_DEFAULT_USERNAMES = new Set([
   '1301',
   '1302',
@@ -32,6 +33,7 @@ const RESERVED_DEFAULT_USERNAMES = new Set([
   '1334',
   '1335',
 ]);
+const LEGACY_AUTH_USERNAMES = Array.from(RESERVED_DEFAULT_USERNAMES);
 
 export function setupLoginForm() {
   const loginForm = document.getElementById('login-form');
@@ -49,7 +51,7 @@ export function setupLoginForm() {
     errorMsg.textContent = '';
 
     resolveLoginEmail(username)
-      .then((email) => auth.signInWithEmailAndPassword(email, password))
+      .then((email) => signInWithResolvedEmail(username, email, password))
       .then(() => {
         location.href = '/static/app.html';
       })
@@ -61,7 +63,7 @@ export function setupLoginForm() {
 }
 
 function resolveLoginEmail(username) {
-  const fallbackEmail = username + '@cs13.class';
+  const fallbackEmail = buildAuthEmail(username);
   const localEmail = getLocalLoginEmail(username);
 
   if (localEmail) {
@@ -88,6 +90,138 @@ function resolveLoginEmail(username) {
       return loginEmail;
     })
     .catch(() => fallbackEmail);
+}
+
+function signInWithResolvedEmail(username, email, password) {
+  return auth
+    .signInWithEmailAndPassword(email, password)
+    .then((credential) => {
+      const user = credential.user || auth.currentUser;
+      if (isDefaultUsername(username)) {
+        return finalizeSuccessfulLogin(username, user);
+      }
+
+      return verifySignedInUsername(username, user).then((verifiedUser) =>
+        finalizeSuccessfulLogin(username, verifiedUser),
+      );
+    })
+    .catch((err) => {
+      if (
+        isDefaultUsername(username) ||
+        !isInvalidCredentialError(err) ||
+        email !== buildAuthEmail(username)
+      ) {
+        throw err;
+      }
+
+      return signInWithLegacyAuthEmail(username, password, err);
+    });
+}
+
+function signInWithLegacyAuthEmail(username, password, originalError) {
+  let chain = Promise.reject(originalError);
+
+  LEGACY_AUTH_USERNAMES.forEach((legacyUsername) => {
+    chain = chain.catch(() =>
+      tryLegacyAuthEmail(username, legacyUsername, password),
+    );
+  });
+
+  return chain.catch(() => {
+    throw originalError;
+  });
+}
+
+function tryLegacyAuthEmail(username, legacyUsername, password) {
+  const legacyEmail = buildAuthEmail(legacyUsername);
+
+  return auth
+    .signInWithEmailAndPassword(legacyEmail, password)
+    .then((credential) => verifySignedInUsername(username, credential.user))
+    .then((user) => finalizeSuccessfulLogin(username, user));
+}
+
+function verifySignedInUsername(username, user) {
+  if (!user) {
+    return Promise.reject(new Error('登入失敗，請再試一次'));
+  }
+
+  return db
+    .collection('users')
+    .doc(user.uid)
+    .get()
+    .then(
+      (doc) => {
+        const data = doc.exists ? doc.data() : {};
+        if (data.username === username) {
+          return user;
+        }
+
+        return rejectAfterSignOut(new Error('帳號或密碼錯誤'));
+      },
+      (err) => rejectAfterSignOut(err),
+    );
+}
+
+function rejectAfterSignOut(err) {
+  return auth
+    .signOut()
+    .catch(() => {})
+    .then(() => {
+      throw err;
+    });
+}
+
+function finalizeSuccessfulLogin(username, user) {
+  if (user?.email) {
+    setLocalLoginEmail(username, user.email);
+  }
+
+  if (!isDefaultUsername(username)) {
+    return syncAuthEmailToUsername(user, username).then(() => user);
+  }
+
+  return Promise.resolve(user);
+}
+
+function syncAuthEmailToUsername(user, username, options = {}) {
+  if (!user || !username) return Promise.resolve();
+
+  const nextEmail = buildAuthEmail(username);
+  if (user.email === nextEmail) {
+    return ensureAuthEmailMapping(user).then(() => {});
+  }
+
+  return user
+    .updateEmail(nextEmail)
+    .then(() => db.collection('users').doc(user.uid).set(
+      { authEmail: nextEmail },
+      { merge: true },
+    ))
+    .then(() => {
+      setLocalLoginEmail(username, nextEmail);
+    })
+    .catch((err) => {
+      if (options.required) {
+        throw err;
+      }
+    });
+}
+
+function buildAuthEmail(username) {
+  return username + AUTH_EMAIL_DOMAIN;
+}
+
+function isDefaultUsername(username) {
+  return RESERVED_DEFAULT_USERNAMES.has(username);
+}
+
+function isInvalidCredentialError(err) {
+  return [
+    'auth/invalid-credential',
+    'auth/wrong-password',
+    'auth/user-not-found',
+  ].includes(err?.code);
 }
 
 function getLocalLoginEmail(username) {
@@ -175,9 +309,9 @@ export function setupProfileSettings(currentUser, onProfileUpdated) {
 }
 
 function ensureAuthEmailMapping(currentUser) {
-  if (!currentUser?.email) return;
+  if (!currentUser?.email) return Promise.resolve();
 
-  db.collection('users')
+  return db.collection('users')
     .doc(currentUser.uid)
     .set({ authEmail: currentUser.email }, { merge: true })
     .catch(() => {});
@@ -191,12 +325,17 @@ function loadProfileSettings(currentUser, onProfileUpdated) {
       const data = doc.exists ? doc.data() : {};
       const usernameInput = document.getElementById('account-username');
       const avatarDataUrl = data.avatarDataUrl || '';
+      const profileUsername =
+        data.username || currentUser.email?.split('@')[0] || '';
 
       if (usernameInput) {
-        usernameInput.value =
-          data.username || currentUser.email?.split('@')[0] || '';
+        usernameInput.value = profileUsername;
         usernameInput.dataset.currentUsername = usernameInput.value;
         setLocalLoginEmail(usernameInput.value, currentUser.email);
+      }
+
+      if (profileUsername && !isDefaultUsername(profileUsername)) {
+        syncAuthEmailToUsername(currentUser, profileUsername);
       }
 
       updateAvatarPreview(avatarDataUrl, currentUser);
@@ -318,20 +457,22 @@ function setupAccountForm(currentUser) {
           throw new Error('這個帳號已經有人使用:(');
         }
 
+        return syncAuthEmailToUsername(currentUser, nextUsername, {
+          required: true,
+        });
+      })
+      .then(() => {
         return db.collection('users').doc(currentUser.uid).set(
           {
             username: nextUsername,
-            authEmail: currentUser.email || currentUsername + '@cs13.class',
+            authEmail: buildAuthEmail(nextUsername),
           },
           { merge: true },
         );
       })
       .then(() => {
         usernameInput.dataset.currentUsername = nextUsername;
-        setLocalLoginEmail(
-          nextUsername,
-          currentUser.email || currentUsername + '@cs13.class',
-        );
+        setLocalLoginEmail(nextUsername, buildAuthEmail(nextUsername));
         showToast('帳號已更新！');
       })
       .catch((err) => {

@@ -1,5 +1,4 @@
 export const PHOTO_DATA_URL_LIMIT = 720 * 1024;
-export const MAX_PHOTOS_PER_ALBUM = 10;
 
 export function showToast(message) {
   const toast = document.getElementById('toast-message');
@@ -96,6 +95,15 @@ export function compressImageFile(file) {
       image.onerror = reject;
       image.src = reader.result;
     };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+export function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });

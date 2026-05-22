@@ -3,11 +3,13 @@ import { clearCachedQuery, getCachedQuery } from '../core/firestore-cache.js';
 import {
   showToast,
   createEmptyState,
-  compressImageFile,
-  MAX_PHOTOS_PER_ALBUM,
+  readFileAsDataUrl,
 } from '../core/utils.js';
 
 let albumsListener = null;
+const PHOTO_INLINE_DATA_URL_LIMIT = 700 * 1024;
+const PHOTO_CHUNK_SIZE = 700 * 1024;
+const ALBUM_FORM_COLLAPSED_KEY = 'cs13:album-form-collapsed';
 
 export function listenToAlbums(updateCount) {
   if (albumsListener) return;
@@ -59,6 +61,17 @@ export function createAlbumCard(album) {
     img.src = album.coverUrl;
     img.alt = album.title || '班級相簿';
     cover.appendChild(img);
+  } else if (album.coverPhotoId) {
+    const img = document.createElement('img');
+    img.alt = album.title || '班級相簿';
+    cover.appendChild(img);
+    loadPhotoUrl(album.id, { id: album.coverPhotoId })
+      .then((url) => {
+        img.src = url;
+      })
+      .catch(() => {
+        cover.textContent = 'CS13';
+      });
   } else {
     cover.textContent = 'CS13';
   }
@@ -104,9 +117,16 @@ export function loadAlbumPhotos(albumId, target) {
 
       photos.forEach((photo) => {
         const img = document.createElement('img');
-        img.src = photo.url;
         img.alt = photo.caption || '相簿照片';
         target.appendChild(img);
+
+        loadPhotoUrl(albumId, photo)
+          .then((url) => {
+            img.src = url;
+          })
+          .catch(() => {
+            img.remove();
+          });
       });
     })
     .catch(() => {});
@@ -116,6 +136,7 @@ export function setupAlbumForm(currentUser, getDisplayName) {
   const form = document.getElementById('album-form');
   if (!form || form.dataset.bound) return;
   form.dataset.bound = 'true';
+  setupAlbumFormToggle(form);
 
   const fileInput = document.getElementById('album-files');
   const fileStatus = document.getElementById('file-upload-status');
@@ -154,7 +175,7 @@ export function setupAlbumForm(currentUser, getDisplayName) {
 
     const albumRef = db.collection('albums').doc();
     const albumId = albumRef.id;
-    const uploadFiles = safeFiles.slice(0, MAX_PHOTOS_PER_ALBUM);
+    const uploadFiles = safeFiles;
 
     albumRef
       .set({
@@ -172,9 +193,13 @@ export function setupAlbumForm(currentUser, getDisplayName) {
           ),
         );
       })
-      .then((urls) => {
-        if (urls[0]) {
-          return albumRef.update({ coverUrl: urls[0] });
+      .then((photos) => {
+        const cover = photos[0];
+        if (cover) {
+          return albumRef.update({
+            coverUrl: cover.url || '',
+            coverPhotoId: cover.photoId,
+          });
         }
         return null;
       })
@@ -195,22 +220,112 @@ export function setupAlbumForm(currentUser, getDisplayName) {
   });
 }
 
+function setupAlbumFormToggle(form) {
+  const toggle = document.getElementById('album-form-toggle');
+  if (!toggle || toggle.dataset.bound) return;
+  toggle.dataset.bound = 'true';
+
+  const setCollapsed = (isCollapsed) => {
+    form.classList.toggle('album-form-collapsed', isCollapsed);
+    toggle.setAttribute('aria-expanded', String(!isCollapsed));
+    toggle.textContent = isCollapsed ? '展開建立區' : '收起建立區';
+    localStorage.setItem(ALBUM_FORM_COLLAPSED_KEY, isCollapsed ? 'true' : 'false');
+  };
+
+  setCollapsed(localStorage.getItem(ALBUM_FORM_COLLAPSED_KEY) === 'true');
+
+  toggle.addEventListener('click', () => {
+    setCollapsed(!form.classList.contains('album-form-collapsed'));
+  });
+}
+
 export function saveAlbumPhoto(albumId, file, index, currentUser) {
-  return compressImageFile(file).then((url) => {
-    return db
+  return readFileAsDataUrl(file).then((dataUrl) => {
+    const photoRef = db
       .collection('albums')
       .doc(albumId)
       .collection('photos')
-      .add({
-        url,
-        storagePath: '',
-        caption: file.name || `photo-${index + 1}`,
-        createdBy: currentUser.uid,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      .doc();
+
+    const basePhoto = {
+      storagePath: '',
+      caption: file.name || `photo-${index + 1}`,
+      createdBy: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (dataUrl.length <= PHOTO_INLINE_DATA_URL_LIMIT) {
+      return photoRef
+        .set({
+          ...basePhoto,
+          url: dataUrl,
+          chunked: false,
+        })
+        .then(() => {
+          clearCachedQuery(`album-photos:${albumId}`);
+          return { photoId: photoRef.id, url: dataUrl };
+        });
+    }
+
+    const chunks = splitText(dataUrl, PHOTO_CHUNK_SIZE);
+
+    return photoRef
+      .set({
+        ...basePhoto,
+        url: '',
+        chunked: true,
+        chunkCount: chunks.length,
+        dataUrlLength: dataUrl.length,
+        mimeType: file.type,
       })
+      .then(() => savePhotoChunks(photoRef, chunks))
       .then(() => {
         clearCachedQuery(`album-photos:${albumId}`);
-        return url;
+        return { photoId: photoRef.id, url: '' };
       });
   });
+}
+
+function splitText(text, chunkSize) {
+  const chunks = [];
+  for (let start = 0; start < text.length; start += chunkSize) {
+    chunks.push(text.slice(start, start + chunkSize));
+  }
+  return chunks;
+}
+
+function savePhotoChunks(photoRef, chunks) {
+  return Promise.all(
+    chunks.map((data, index) =>
+      photoRef.collection('chunks').doc(String(index).padStart(5, '0')).set({
+        index,
+        data,
+      }),
+    ),
+  );
+}
+
+function loadPhotoUrl(albumId, photo) {
+  if (photo.url) return Promise.resolve(photo.url);
+
+  return db
+    .collection('albums')
+    .doc(albumId)
+    .collection('photos')
+    .doc(photo.id)
+    .collection('chunks')
+    .orderBy('index', 'asc')
+    .get()
+    .then((snapshot) => {
+      let url = '';
+      snapshot.forEach((doc) => {
+        url += doc.data().data || '';
+      });
+
+      if (!url) {
+        throw new Error('照片資料不存在');
+      }
+
+      return url;
+    });
 }

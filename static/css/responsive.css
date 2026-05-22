@@ -152,6 +152,10 @@
   .message-group {
     max-width: 88%;
   }
+
+  .message-menu-button {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 520px) {
@@ -187,5 +191,19 @@
 
   .message-group {
     max-width: 94%;
+  }
+
+  .message-bubble-wrapper {
+    gap: 6px;
+  }
+
+  .message-menu-button {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+  }
+
+  .message-action-menu {
+    width: min(210px, 78vw);
   }
 }

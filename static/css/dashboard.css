@@ -120,9 +120,6 @@
   display: flex;
   gap: 8px;
   padding: 0;
-  background: transparent;
-  border: 0;
-  box-shadow: none;
 }
 
 .hub-overview {

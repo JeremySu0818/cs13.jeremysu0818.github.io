@@ -3,6 +3,9 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .chat-sidebar-header {
@@ -126,6 +129,9 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .chat-content-placeholder {
@@ -206,6 +212,39 @@
   gap: 16px;
 }
 
+.pinned-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: calc(100% - 48px);
+  margin: 12px 24px 0;
+  padding: 10px 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+  text-align: left;
+}
+
+.pinned-message:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.pinned-message-icon {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--muted);
+}
+
+.pinned-message-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
 .message-group {
   display: flex;
   flex-direction: column;
@@ -229,6 +268,14 @@
 
 .message-bubble-wrapper {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.message-group.mine .message-bubble-wrapper,
+.message-group.other .message-bubble-wrapper {
+  flex-direction: row;
 }
 
 .message-bubble {
@@ -240,8 +287,89 @@
   word-break: break-word;
 }
 
+.message-recalled {
+  color: var(--muted);
+  font-style: italic;
+}
+
 .mine .message-bubble {
   background: rgba(255, 255, 255, 0.3);
+}
+
+.message-menu-button {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border: 1px solid var(--line-soft);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  box-shadow: 0 10px 28px rgba(42, 45, 48, 0.08);
+}
+
+.message-bubble-wrapper:hover .message-menu-button,
+.message-menu-button:focus,
+.message-menu-button[aria-expanded='true'] {
+  opacity: 1;
+}
+
+.message-menu-button:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--line);
+}
+
+.message-action-menu {
+  position: absolute;
+  z-index: 20;
+  right: calc(100% + 8px);
+  top: 0;
+  display: none;
+  width: min(230px, 74vw);
+  overflow: hidden;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow-soft);
+  color: var(--text);
+}
+
+.message-group.other .message-action-menu {
+  right: auto;
+  left: 0;
+}
+
+.message-action-menu.active {
+  display: block;
+}
+
+.message-action-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.94rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.message-action-item:hover {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.message-action-item.danger {
+  color: var(--danger);
 }
 
 .like-badge {
@@ -301,4 +429,59 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.forward-modal-card {
+  width: min(100%, 420px);
+}
+
+.forward-preview {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--muted);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.forward-chat-list {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.forward-chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.forward-chat-item:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.forward-chat-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+}
+
+.forward-chat-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
 }

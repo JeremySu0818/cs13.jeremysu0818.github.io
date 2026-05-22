@@ -123,6 +123,7 @@ function initializeDashboard() {
     chatBackBtn.addEventListener('click', () => {
       const chatPanel = document.getElementById('chat-panel');
       if (chatPanel) chatPanel.classList.remove('chat-view-active');
+      requestAnimationFrame(refreshLiquidGlass);
     });
   }
 
@@ -243,6 +244,15 @@ function activatePanel(panelId) {
   document.querySelectorAll('[data-panel]').forEach((button) => {
     button.classList.toggle('active', button.dataset.panel === panelId);
   });
+
+  requestAnimationFrame(refreshLiquidGlass);
+}
+
+function refreshLiquidGlass() {
+  window.dispatchEvent(new Event('liquid-glass:refresh'));
+  window.setTimeout(() => {
+    window.dispatchEvent(new Event('liquid-glass:refresh'));
+  }, 120);
 }
 
 function setupUserAvatar(avatarDataUrl = null) {

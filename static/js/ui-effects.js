@@ -38,8 +38,8 @@ function setRandomBackground() {
 
 function mountGlassFilter(createLiquidGlass, element, registry) {
   const rect = element.getBoundingClientRect();
-  const width = Math.max(1, Math.round(rect.width));
-  const height = Math.max(1, Math.round(rect.height));
+  const width = Math.round(rect.width);
+  const height = Math.round(rect.height);
 
   if (!width || !height) {
     return;
@@ -74,8 +74,10 @@ function mountGlassFilter(createLiquidGlass, element, registry) {
     document.body.appendChild(svg);
   }
 
+  element.style.setProperty('--liquid-glass-filter', glass.filterRef);
   element.style.backdropFilter = glass.filterRef;
   element.style.WebkitBackdropFilter = glass.filterRef;
+  element.dataset.liquidGlassMounted = 'true';
   registry.set(element, { svg, width, height });
 }
 
@@ -90,13 +92,35 @@ export function initPageEffects(createLiquidGlass) {
     return () => {};
   }
 
-  const elements = Array.from(document.querySelectorAll('[data-liquid-glass]'));
-  if (elements.length === 0) {
-    return () => {};
-  }
-
   const registry = new Map();
+  let elements = [];
+
+  const syncElements = () => {
+    elements = Array.from(document.querySelectorAll('[data-liquid-glass]'));
+
+    for (const element of elements) {
+      if (registry.has(element)) continue;
+      registry.set(element, { svg: null, width: 0, height: 0 });
+      if (resizeObserver) {
+        resizeObserver.observe(element);
+      }
+    }
+
+    for (const element of Array.from(registry.keys())) {
+      if (elements.includes(element)) continue;
+      const current = registry.get(element);
+      current?.svg?.remove();
+      element.style.removeProperty('--liquid-glass-filter');
+      element.style.removeProperty('backdrop-filter');
+      element.style.removeProperty('-webkit-backdrop-filter');
+      delete element.dataset.liquidGlassMounted;
+      resizeObserver?.unobserve(element);
+      registry.delete(element);
+    }
+  };
+
   const refreshAll = () => {
+    syncElements();
     for (const element of elements) {
       mountGlassFilter(createLiquidGlass, element, registry);
     }
@@ -111,22 +135,25 @@ export function initPageEffects(createLiquidGlass) {
         })
       : null;
 
-  for (const element of elements) {
-    registry.set(element, { svg: null, width: 0, height: 0 });
-    if (resizeObserver) {
-      resizeObserver.observe(element);
-    }
-  }
-
+  syncElements();
   requestAnimationFrame(refreshAll);
   window.addEventListener('resize', refreshAll);
+  window.addEventListener('liquid-glass:refresh', refreshAll);
 
   return () => {
     window.removeEventListener('resize', refreshAll);
+    window.removeEventListener('liquid-glass:refresh', refreshAll);
     resizeObserver?.disconnect();
 
     for (const { svg } of registry.values()) {
       svg?.remove();
+    }
+
+    for (const element of elements) {
+      element.style.removeProperty('--liquid-glass-filter');
+      element.style.removeProperty('backdrop-filter');
+      element.style.removeProperty('-webkit-backdrop-filter');
+      delete element.dataset.liquidGlassMounted;
     }
 
     registry.clear();

@@ -6,6 +6,11 @@
   border-radius: 60px;
 }
 
+[data-liquid-glass] > * {
+  position: relative;
+  z-index: 1;
+}
+
 .card,
 .modal-card,
 .section-panel,

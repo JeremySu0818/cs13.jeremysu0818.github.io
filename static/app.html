@@ -326,8 +326,8 @@
           </div>
         </section>
 
-        <section class="hub-panel chat-panel" id="chat-panel">
-          <div class="chat-sidebar" data-liquid-glass>
+        <section class="hub-panel chat-panel" id="chat-panel" data-liquid-glass>
+          <div class="chat-sidebar">
             <div class="chat-sidebar-header">
               <div class="chat-sidebar-title-row">
                 <h2 class="chat-sidebar-title">聊天室</h2>
@@ -357,7 +357,7 @@
             <div class="chat-list" id="chat-list-container"></div>
           </div>
 
-          <div class="chat-content" data-liquid-glass>
+          <div class="chat-content">
             <div class="welcome-screen" id="welcome-screen">
               <h2 class="welcome-title">聊天室</h2>
               <p class="welcome-subtitle">
@@ -397,6 +397,21 @@
                   </div>
                 </div>
               </div>
+
+              <button class="pinned-message hidden" id="pinned-message-banner">
+                <span class="pinned-message-icon" aria-hidden="true">
+                  <svg
+                    fill="currentColor"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    width="18"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="m22.707 7.583-6.29-6.29a1 1 0 0 0-1.414 0 5.183 5.183 0 0 0-1.543 3.593L8.172 8.79a5.161 5.161 0 0 0-4.768 1.42 1 1 0 0 0 0 1.414l3.779 3.778-5.89 5.89a1 1 0 1 0 1.414 1.414l5.89-5.89 3.778 3.779a1 1 0 0 0 1.414 0 5.174 5.174 0 0 0 1.42-4.769l3.905-5.287a5.183 5.183 0 0 0 3.593-1.543 1 1 0 0 0 0-1.414Zm-3.979.941a.974.974 0 0 0-.908.4l-4.512 6.111a1 1 0 0 0-.14.927 3.037 3.037 0 0 1-.194 2.403l-7.34-7.339a3.042 3.042 0 0 1 2.403-.196.994.994 0 0 0 .927-.138l6.111-4.512a.999.999 0 0 0 .4-.909 3.086 3.086 0 0 1 .342-1.75l4.662 4.662a3.072 3.072 0 0 1-1.75.341Z"/>
+                  </svg>
+                </span>
+                <span class="pinned-message-text" id="pinned-message-text"></span>
+              </button>
 
               <div class="message-area" id="message-list"></div>
 
@@ -683,6 +698,19 @@
             <div class="error-message" id="password-error-message"></div>
             <button class="btn login-btn" type="submit">更新密碼</button>
           </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="forward-message-modal">
+      <div class="card modal-card forward-modal-card" data-liquid-glass>
+        <div class="modal-header">
+          <h3 class="modal-title">轉寄訊息</h3>
+          <button class="close-btn" id="forward-message-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="forward-preview" id="forward-message-preview"></div>
+          <div class="forward-chat-list" id="forward-chat-list"></div>
         </div>
       </div>
     </div>

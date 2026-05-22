@@ -733,6 +733,48 @@
       </div>
     </div>
 
+    <div class="modal-overlay" id="edit-poll-modal">
+      <div class="card modal-card album-edit-modal" data-liquid-glass>
+        <div class="modal-header">
+          <h3 class="modal-title">編輯投票</h3>
+          <button class="close-btn" id="edit-poll-close">&times;</button>
+        </div>
+        <form id="edit-poll-form">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label" for="edit-poll-question">投票問題</label>
+              <input
+                class="form-input"
+                type="text"
+                id="edit-poll-question"
+                maxlength="120"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="edit-poll-options">投票選項</label>
+              <textarea
+                class="form-input"
+                id="edit-poll-options"
+                rows="5"
+                required
+              ></textarea>
+            </div>
+            <label class="checkbox-row">
+              <input type="checkbox" id="edit-poll-allow-multiple" />
+              允許多選
+            </label>
+          </div>
+          <div class="quote-btn-group">
+            <button class="btn btn-secondary" type="button" id="edit-poll-cancel">
+              取消
+            </button>
+            <button class="btn" type="submit">儲存變更</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <div class="modal-overlay" id="change-password-modal">
       <div class="card modal-card" data-liquid-glass>
         <div class="modal-header">

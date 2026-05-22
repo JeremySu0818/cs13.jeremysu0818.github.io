@@ -152,7 +152,7 @@ function updatePublicAuthState() {
     const title = loginSection.querySelector('.section-title');
     const copy = loginSection.querySelector('.section-copy');
     if (title) title.textContent = '已登入';
-    if (copy) copy.textContent = '可以直接進入來新增相簿、投票或聊天 😀 ';
+    if (copy) copy.textContent = '可以直接進入來新增相簿、投票或聊天😀';
     if (tabLogin) tabLogin.classList.add('hidden');
     if (tabApp) tabApp.classList.remove('hidden');
     authOnlyLinks.forEach((link) => link.classList.remove('hidden'));

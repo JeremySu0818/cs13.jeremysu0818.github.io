@@ -197,7 +197,7 @@ export function setupAlbumForm(currentUser, getDisplayName) {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!currentUser) {
-      showToast('先登入才能新增相簿 😀 ');
+      showToast('先登入才能新增相簿😀');
       return;
     }
 

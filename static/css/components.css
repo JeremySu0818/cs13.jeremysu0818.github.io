@@ -29,6 +29,10 @@
   border-radius: var(--radius-lg);
 }
 
+[data-liquid-glass].modal-card {
+  border-radius: 60px;
+}
+
 .btn,
 .btn-icon,
 .btn-send,
@@ -165,7 +169,8 @@
   border-radius: var(--radius-md);
 }
 
-.album-card {
+.album-card,
+.poll-card {
   position: relative;
   overflow: visible;
 }
@@ -189,20 +194,23 @@
   object-fit: cover;
 }
 
-.album-action-wrap {
+.album-action-wrap,
+.poll-action-wrap {
   position: absolute;
   top: 10px;
   right: 10px;
   z-index: 10;
 }
 
-.album-menu-button {
+.album-menu-button,
+.poll-menu-button {
   position: relative;
   z-index: 2;
   opacity: 1;
 }
 
-.album-action-menu {
+.album-action-menu,
+.poll-action-menu {
   top: 0;
   right: calc(100% + 8px);
 }
@@ -254,6 +262,7 @@
 
 .poll-card {
   padding: 18px;
+  padding-right: 56px;
 }
 
 .vote-form {

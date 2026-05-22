@@ -121,6 +121,10 @@
     border-radius: 32px;
   }
 
+  [data-liquid-glass].modal-card {
+    border-radius: 32px;
+  }
+
   .card,
   .modal-card,
   .section-panel,

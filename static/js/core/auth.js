@@ -2,6 +2,8 @@ import { auth, db } from './firebase-init.js';
 import { compressImageFile, showToast, getDisplayName } from './utils.js';
 
 const AUTH_EMAIL_DOMAIN = '@cs13.class';
+const INITIAL_PASSWORD = 'initpw1234';
+const INITIAL_PASSWORD_LOGIN_KEY = 'cs13:initial-password-login';
 const RESERVED_DEFAULT_USERNAMES = new Set([
   '1301',
   '1302',
@@ -53,11 +55,12 @@ export function setupLoginForm() {
     resolveLoginEmail(username)
       .then((email) => signInWithResolvedEmail(username, email, password))
       .then(() => {
+        setInitialPasswordLogin(password === INITIAL_PASSWORD);
         location.href = '/app/';
       })
       .catch((err) => {
         submitBtn.disabled = false;
-        errorMsg.textContent = err.message;
+        errorMsg.textContent = getLoginErrorMessage(err);
       });
   });
 }
@@ -229,6 +232,14 @@ function isInvalidCredentialError(err) {
   ].includes(err?.code);
 }
 
+function getLoginErrorMessage(err) {
+  if (isInvalidCredentialError(err)) {
+    return '帳號/密碼錯誤';
+  }
+
+  return err.message;
+}
+
 function getLocalLoginEmail(username) {
   try {
     return localStorage.getItem('cs13-login-email:' + username);
@@ -250,6 +261,7 @@ export function setupLogout(cleanup) {
   if (logoutBtn && !logoutBtn.dataset.bound) {
     logoutBtn.dataset.bound = 'true';
     logoutBtn.addEventListener('click', () => {
+      clearInitialPasswordLogin();
       if (cleanup) cleanup();
       auth.signOut();
     });
@@ -288,13 +300,8 @@ export function setupChangePasswordForm(currentUser) {
 
     auth.currentUser
       .updatePassword(newPassword)
-      .then(() =>
-        db
-          .collection('users')
-          .doc(currentUser.uid)
-          .update({ mustChangePassword: false }),
-      )
       .then(() => {
+        clearInitialPasswordLogin();
         const modal = document.getElementById('change-password-modal');
         if (modal) modal.classList.remove('active');
         showToast('密碼已成功更新！');
@@ -524,13 +531,8 @@ function setupProfilePasswordForm(currentUser) {
 
     auth.currentUser
       .updatePassword(newPassword)
-      .then(() =>
-        db
-          .collection('users')
-          .doc(currentUser.uid)
-          .update({ mustChangePassword: false }),
-      )
       .then(() => {
+        clearInitialPasswordLogin();
         form.reset();
         showToast('密碼已成功更新！');
       })
@@ -541,6 +543,28 @@ function setupProfilePasswordForm(currentUser) {
         if (submitBtn) submitBtn.disabled = false;
       });
   });
+}
+
+export function shouldPromptInitialPasswordChange() {
+  try {
+    return sessionStorage.getItem(INITIAL_PASSWORD_LOGIN_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function setInitialPasswordLogin(shouldPrompt) {
+  try {
+    if (shouldPrompt) {
+      sessionStorage.setItem(INITIAL_PASSWORD_LOGIN_KEY, 'true');
+    } else {
+      sessionStorage.removeItem(INITIAL_PASSWORD_LOGIN_KEY);
+    }
+  } catch {}
+}
+
+function clearInitialPasswordLogin() {
+  setInitialPasswordLogin(false);
 }
 
 function updateAvatarPreview(avatarDataUrl, currentUser) {

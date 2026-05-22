@@ -6,6 +6,7 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
+const FIRESTORE_COLLECTIONS_TO_DELETE = ['polls', 'chats', 'users', 'albums'];
 
 const students = [
   { name: '王語桐', username: '1301' },
@@ -46,18 +47,37 @@ async function cleanup() {
       const userRecord = await admin.auth().getUserByEmail(email);
       const uid = userRecord.uid;
       await admin.auth().deleteUser(uid);
-      await db.collection('users').doc(uid).delete();
       console.log('Deleted: ' + student.name + ' (' + student.username + ')');
     } catch (e) {
       console.log('Not found: ' + student.name);
     }
   }
-  try {
-    await db.collection('chats').doc('global_class_chat').delete();
-    console.log('Deleted global chat');
-  } catch (e) {
-    console.log('Failed to delete global chat');
+
+  for (const collectionName of FIRESTORE_COLLECTIONS_TO_DELETE) {
+    await deleteCollection(collectionName);
   }
 }
 
-cleanup();
+async function deleteCollection(collectionName) {
+  try {
+    await db.recursiveDelete(db.collection(collectionName));
+    console.log('Deleted Firestore collection: ' + collectionName);
+  } catch (e) {
+    console.error(
+      'Failed to delete Firestore collection: ' +
+        collectionName +
+        ' - ' +
+        e.message,
+    );
+    throw e;
+  }
+}
+
+cleanup()
+  .then(() => {
+    console.log('Cleanup complete');
+  })
+  .catch((e) => {
+    console.error('Cleanup failed:', e);
+    process.exitCode = 1;
+  });

@@ -18,6 +18,7 @@ import {
   showChangePasswordModal,
   setupChangePasswordForm,
   setupProfileSettings,
+  shouldPromptInitialPasswordChange,
 } from './core/auth.js';
 
 const isAppPage = location.pathname.replace(/\/$/, '') === '/app';
@@ -86,15 +87,13 @@ function initializeDashboard() {
     listenToChats(currentUser, activatePanel, selectChat);
   });
 
-  db.collection('users')
-    .doc(currentUser.uid)
+  if (shouldPromptInitialPasswordChange()) {
+    showChangePasswordModal();
+  }
+
+  db.collection('chats')
+    .doc('global_class_chat')
     .get()
-    .then((doc) => {
-      if (doc.exists && doc.data().mustChangePassword) {
-        showChangePasswordModal();
-      }
-      return db.collection('chats').doc('global_class_chat').get();
-    })
     .then((chatDoc) => {
       if (chatDoc.exists) {
         const members = chatDoc.data().members || [];
@@ -110,7 +109,9 @@ function initializeDashboard() {
         }
       }
     })
-    .catch(() => {});
+    .catch((err) => {
+      console.warn('Failed to verify global chat membership:', err);
+    });
 
   const welcomeTitle = document.getElementById('welcome-user-title');
   if (welcomeTitle) {

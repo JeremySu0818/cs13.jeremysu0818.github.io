@@ -1,5 +1,5 @@
 import { auth, db } from './firebase-init.js';
-import { compressImageFile, showToast } from './utils.js';
+import { compressImageFile, showToast, getDisplayName } from './utils.js';
 
 const AUTH_EMAIL_DOMAIN = '@cs13.class';
 const RESERVED_DEFAULT_USERNAMES = new Set([
@@ -154,6 +154,11 @@ function verifySignedInUsername(username, user) {
       (doc) => {
         const data = doc.exists ? doc.data() : {};
         if (data.username === username) {
+          if (data.name) {
+            try {
+              localStorage.setItem('cs13-user-name:' + user.uid, data.name);
+            } catch (e) {}
+          }
           return user;
         }
 
@@ -323,6 +328,11 @@ function loadProfileSettings(currentUser, onProfileUpdated) {
     .get()
     .then((doc) => {
       const data = doc.exists ? doc.data() : {};
+      if (data.name) {
+        try {
+          localStorage.setItem('cs13-user-name:' + currentUser.uid, data.name);
+        } catch (e) {}
+      }
       const usernameInput = document.getElementById('account-username');
       const avatarDataUrl = data.avatarDataUrl || '';
       const profileUsername =
@@ -543,9 +553,7 @@ function updateAvatarPreview(avatarDataUrl, currentUser) {
   if (avatarDataUrl) {
     preview.style.backgroundImage = `url("${avatarDataUrl}")`;
   } else {
-    preview.textContent =
-      currentUser.displayName?.charAt(0).toUpperCase() ||
-      currentUser.email?.charAt(0).toUpperCase() ||
-      '-';
+    const name = getDisplayName(currentUser);
+    preview.textContent = name.charAt(0).toUpperCase();
   }
 }

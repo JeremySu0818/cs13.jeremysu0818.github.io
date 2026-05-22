@@ -1,6 +1,6 @@
 import { db } from '../core/firebase-init.js';
 import { getCachedQuery } from '../core/firestore-cache.js';
-import { showToast, formatTime } from '../core/utils.js';
+import { showToast, formatTime, getDisplayName } from '../core/utils.js';
 
 let currentChatId = null;
 let activeChatListener = null;
@@ -558,7 +558,8 @@ function getChatDisplayName(chat, currentUser) {
 function getCurrentUserName(currentUser) {
   const cachedUser = allUsers.find((user) => user.uid === currentUser.uid);
   if (cachedUser) return cachedUser.name;
-  return currentUser.displayName || currentUser.email || '我';
+  const name = getDisplayName(currentUser);
+  return name === '朋友' ? '我' : name;
 }
 
 document.addEventListener('click', () => {

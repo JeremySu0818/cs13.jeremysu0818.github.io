@@ -21,8 +21,53 @@ export function formatTime(timestamp) {
   );
 }
 
+const STUDENT_MAP = {
+  '1301': '王語桐',
+  '1302': '吳苡睫',
+  '1303': '林千雅',
+  '1304': '林子晴',
+  '1305': '林欣霓',
+  '1306': '張沁言',
+  '1307': '陳佩潔',
+  '1308': '彭昀軒',
+  '1309': '黃牧晨',
+  '1310': '黃芯恬',
+  '1311': '黃奕茹',
+  '1312': '楊心晴',
+  '1314': '蔡宜潔',
+  '1315': '羅敘初',
+  '1321': '王奕棋',
+  '1322': '江奕澄',
+  '1323': '宋彥樂',
+  '1324': '李承恩',
+  '1325': '李承睿',
+  '1326': '汪英喦',
+  '1327': '孟慶安',
+  '1328': '林昊緯',
+  '1329': '林威良',
+  '1330': '許彧睿',
+  '1331': '傅子齊',
+  '1332': '詹景荃',
+  '1333': '鄭淇峰',
+  '1334': '賴駿逸',
+  '1335': '蘇星泓'
+};
+
 export function getDisplayName(currentUser) {
-  return currentUser?.displayName || currentUser?.email || '朋友';
+  if (!currentUser) return '朋友';
+  if (currentUser.displayName) return currentUser.displayName;
+  try {
+    const cachedName = localStorage.getItem('cs13-user-name:' + currentUser.uid);
+    if (cachedName) return cachedName;
+  } catch (e) {}
+  if (currentUser.email) {
+    const username = currentUser.email.split('@')[0];
+    if (STUDENT_MAP[username]) {
+      return STUDENT_MAP[username];
+    }
+    return username;
+  }
+  return '朋友';
 }
 
 export function getQuoteText(quote) {

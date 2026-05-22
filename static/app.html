@@ -514,27 +514,38 @@
               <p class="section-copy">建立單選或多選投票</p>
             </div>
           </div>
-          <form class="feature-form" id="poll-form">
-            <input
-              class="form-input"
-              type="text"
-              id="poll-question"
-              placeholder="投票問題"
-              maxlength="80"
-              required
-            />
-            <textarea
-              class="form-input"
-              id="poll-options"
-              placeholder="每行一個選項，至少兩個"
-              required
-            ></textarea>
-            <label class="switch-row">
-              <input type="checkbox" id="poll-allow-multiple" />
-              <span>允許多選</span>
-            </label>
-            <button class="btn" type="submit">建立投票</button>
-          </form>
+          <div class="poll-form-shell" id="poll-form-shell">
+            <form class="feature-form" id="poll-form">
+              <input
+                class="form-input"
+                type="text"
+                id="poll-question"
+                placeholder="投票問題"
+                maxlength="80"
+                required
+              />
+              <textarea
+                class="form-input"
+                id="poll-options"
+                placeholder="每行一個選項，至少兩個"
+                required
+              ></textarea>
+              <label class="switch-row">
+                <input type="checkbox" id="poll-allow-multiple" />
+                <span>允許多選</span>
+              </label>
+              <button class="btn" type="submit">建立投票</button>
+            </form>
+          </div>
+          <button
+            class="btn btn-secondary poll-form-toggle"
+            type="button"
+            id="poll-form-toggle"
+            aria-controls="poll-form"
+            aria-expanded="true"
+          >
+            收起建立區
+          </button>
           <div class="poll-list" id="app-poll-list">
             <div class="empty-state">投票載入中...</div>
           </div>

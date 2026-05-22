@@ -5,6 +5,7 @@ import { showToast, createEmptyState } from '../core/utils.js';
 let pollsListener = null;
 let pollActionUser = null;
 let editingPollId = '';
+const POLL_FORM_COLLAPSED_KEY = 'cs13:poll-form-collapsed';
 
 export function listenToPolls(updateCount, currentUser) {
   if (pollsListener) return;
@@ -36,6 +37,7 @@ export function setupPollForm(currentUser, getDisplayName) {
   if (!form || form.dataset.bound) return;
   form.dataset.bound = 'true';
   pollActionUser = currentUser;
+  setupPollFormToggle();
   setupPollMenuClose();
   setupPollEditModal(currentUser);
 
@@ -256,6 +258,26 @@ export function submitVote(poll, form, currentUser) {
     });
 }
 
+function setupPollFormToggle() {
+  const shell = document.getElementById('poll-form-shell');
+  const toggle = document.getElementById('poll-form-toggle');
+  if (!shell || !toggle || toggle.dataset.bound) return;
+  toggle.dataset.bound = 'true';
+
+  const setCollapsed = (isCollapsed) => {
+    shell.classList.toggle('poll-form-collapsed', isCollapsed);
+    toggle.setAttribute('aria-expanded', String(!isCollapsed));
+    toggle.textContent = isCollapsed ? '展開建立區' : '收起建立區';
+    localStorage.setItem(POLL_FORM_COLLAPSED_KEY, isCollapsed ? 'true' : 'false');
+  };
+
+  setCollapsed(localStorage.getItem(POLL_FORM_COLLAPSED_KEY) === 'true');
+
+  toggle.addEventListener('click', () => {
+    setCollapsed(!shell.classList.contains('poll-form-collapsed'));
+  });
+}
+
 function canManagePoll(poll, currentUser = pollActionUser) {
   return Boolean(currentUser && poll.createdBy === currentUser.uid);
 }
@@ -421,7 +443,7 @@ function deletePoll(poll) {
   if (!window.confirm('確定要刪除這個投票嗎？票數也會一起刪除。')) return;
 
   getManageablePoll(poll.id)
-    .then(() => deletePollVotes(poll.id))
+    .then(() => deletePollVotes(poll.id).catch(() => null))
     .then(() => db.collection('polls').doc(poll.id).delete())
     .then(() => {
       clearCachedQuery(`poll-votes:${poll.id}`);

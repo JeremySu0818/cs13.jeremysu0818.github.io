@@ -246,6 +246,11 @@ function setupPanelNavigation() {
 }
 
 function activatePanel(panelId) {
+  const currentActivePanel = document.querySelector('.hub-panel.active');
+  const wasProfile = currentActivePanel && currentActivePanel.id === 'profile-panel';
+  const isProfile = panelId === 'profile-panel';
+  const skipTransition = wasProfile && !isProfile;
+
   document.querySelectorAll('.hub-panel').forEach((panel) => {
     panel.classList.toggle('active', panel.id === panelId);
   });
@@ -259,7 +264,7 @@ function activatePanel(panelId) {
     location.hash = route;
   }
 
-  updateNavIndicator();
+  updateNavIndicator(skipTransition);
   requestAnimationFrame(refreshLiquidGlass);
 }
 
@@ -268,18 +273,32 @@ function handleDashboardHash() {
   activatePanel(dashboardRoutes[route] || 'home-panel');
 }
 
-function updateNavIndicator() {
+function updateNavIndicator(skipTransition) {
   const activeBtn = document.querySelector('.nav-menu .nav-item.active');
   const indicator = document.querySelector('.nav-indicator');
   if (!indicator) return;
 
   if (activeBtn) {
+    if (skipTransition === true) {
+      indicator.style.transition = 'none';
+    }
     indicator.style.width = `${activeBtn.offsetWidth}px`;
     indicator.style.height = `${activeBtn.offsetHeight}px`;
     indicator.style.transform = `translate3d(${activeBtn.offsetLeft}px, ${activeBtn.offsetTop}px, 0)`;
+    if (skipTransition === true) {
+      indicator.offsetHeight;
+      indicator.style.transition = '';
+    }
     indicator.style.opacity = '1';
   } else {
+    if (skipTransition === true) {
+      indicator.style.transition = 'none';
+    }
     indicator.style.opacity = '0';
+    if (skipTransition === true) {
+      indicator.offsetHeight;
+      indicator.style.transition = '';
+    }
   }
 }
 

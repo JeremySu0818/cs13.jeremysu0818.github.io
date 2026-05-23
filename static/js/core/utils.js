@@ -109,6 +109,86 @@ export function readFileAsDataUrl(file) {
   });
 }
 
+export function readFileAsArrayBuffer(file) {
+  if (typeof file.arrayBuffer === 'function') {
+    return file.arrayBuffer();
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+export async function encodeImageFileForAlbum(file, options = {}) {
+  const targetBytes = options.targetBytes || 1400 * 1024;
+  let maxSide = options.maxSide || 1920;
+  let quality = options.quality || 0.9;
+  let lastBlob = null;
+  const image = await loadImageFromFile(file);
+
+  for (let attempt = 0; attempt < 14; attempt++) {
+    lastBlob = await renderImageBlob(image, maxSide, quality);
+    if (lastBlob.size <= targetBytes) {
+      return lastBlob;
+    }
+
+    if (quality > 0.7) {
+      quality = Math.max(0.7, quality - 0.06);
+    } else if (maxSide > 1200) {
+      maxSide = Math.max(1200, Math.round(maxSide * 0.86));
+      quality = 0.86;
+    } else {
+      break;
+    }
+  }
+
+  return lastBlob;
+}
+
+function loadImageFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('圖片載入失敗'));
+    };
+    image.src = objectUrl;
+  });
+}
+
+function renderImageBlob(image, maxSide, quality) {
+  return new Promise((resolve, reject) => {
+    const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+    const width = Math.max(1, Math.round(image.width * scale));
+    const height = Math.max(1, Math.round(image.height * scale));
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(image, 0, 0, width, height);
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('圖片編碼失敗'));
+        }
+      },
+      'image/jpeg',
+      quality,
+    );
+  });
+}
+
 function renderCompressedDataUrl(image) {
   let maxSide = 1200;
   let quality = 0.82;

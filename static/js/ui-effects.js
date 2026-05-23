@@ -205,9 +205,15 @@ export function initPageEffects(createLiquidGlass) {
 
   const refreshAll = () => {
     syncElements();
-    for (const element of elements) {
-      mountGlassFilter(createLiquidGlass, element, registry);
-    }
+    let i = 0;
+    const step = () => {
+      if (i < elements.length) {
+        mountGlassFilter(createLiquidGlass, elements[i], registry);
+        i++;
+        requestAnimationFrame(step);
+      }
+    };
+    requestAnimationFrame(step);
   };
 
   const resizeObserver =
@@ -220,7 +226,7 @@ export function initPageEffects(createLiquidGlass) {
       : null;
 
   syncElements();
-  requestAnimationFrame(refreshAll);
+  refreshAll();
   window.addEventListener('resize', refreshAll);
   window.addEventListener('liquid-glass:refresh', refreshAll);
 

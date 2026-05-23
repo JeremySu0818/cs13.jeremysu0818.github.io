@@ -4,6 +4,8 @@ import {
   showToast,
   createEmptyState,
   readFileAsDataUrl,
+  readFileAsArrayBuffer,
+  encodeImageFileForAlbum,
 } from '../core/utils.js';
 
 let albumsListener = null;
@@ -17,7 +19,10 @@ let albumUsers = [];
 let selectedAlbumCollaborators = [];
 let selectedEditAlbumCollaborators = [];
 const PHOTO_INLINE_DATA_URL_LIMIT = 700 * 1024;
-const PHOTO_CHUNK_SIZE = 700 * 1024;
+const PHOTO_ENCODE_TARGET_BYTES = 1900 * 1024;
+const PHOTO_CHUNK_SIZE = 720 * 1024;
+const PHOTO_CHUNKS_PER_BATCH = 2;
+const PHOTO_CHUNK_BATCH_CONCURRENCY = 3;
 const ALBUM_FORM_COLLAPSED_KEY = 'cs13:album-form-collapsed';
 
 export function listenToAlbums(updateCount) {
@@ -97,7 +102,7 @@ export function createAlbumCard(album) {
   cover.className = 'album-cover';
   if (album.coverUrl) {
     const img = document.createElement('img');
-    img.src = album.coverUrl;
+    setImageSource(img, album.coverUrl);
     img.alt = album.title || '班級相簿';
     cover.appendChild(img);
   } else if (album.coverPhotoId) {
@@ -106,7 +111,7 @@ export function createAlbumCard(album) {
     cover.appendChild(img);
     loadPhotoUrl(album.id, { id: album.coverPhotoId })
       .then((url) => {
-        img.src = url;
+        setImageSource(img, url);
       })
       .catch(() => {
         cover.textContent = 'CS13';
@@ -161,7 +166,7 @@ export function loadAlbumPhotos(albumId, target) {
 
         loadPhotoUrl(albumId, photo)
           .then((url) => {
-            img.src = url;
+            setImageSource(img, url);
           })
           .catch(() => {
             img.remove();
@@ -169,6 +174,15 @@ export function loadAlbumPhotos(albumId, target) {
       });
     })
     .catch(() => {});
+}
+
+function setImageSource(img, url) {
+  img.src = url;
+  if (!url.startsWith('blob:')) return;
+
+  const revoke = () => URL.revokeObjectURL(url);
+  img.addEventListener('load', revoke, { once: true });
+  img.addEventListener('error', revoke, { once: true });
 }
 
 export function setupAlbumForm(currentUser, getDisplayName) {
@@ -263,7 +277,8 @@ export function setupAlbumForm(currentUser, getDisplayName) {
         }
         showToast('相簿建立成功！');
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Album upload failed', error);
         showToast('相簿建立失敗:(');
       })
       .finally(() => {
@@ -530,7 +545,8 @@ function setupAlbumEditModal(currentUser) {
         closeModal();
         showToast('相簿已更新');
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Album update failed', error);
         showToast('相簿更新失敗:(');
       })
       .finally(() => {
@@ -608,7 +624,7 @@ function renderEditAlbumPhotos(albumId, photos) {
       item.appendChild(remove);
 
       loadPhotoUrl(albumId, photo).then((url) => {
-        img.src = url;
+        setImageSource(img, url);
       });
 
       photoList.appendChild(item);
@@ -749,21 +765,25 @@ function refreshAlbumCover(albumId) {
 }
 
 export function saveAlbumPhoto(albumId, file, index, currentUser) {
-  return readFileAsDataUrl(file).then((dataUrl) => {
-    const photoRef = db
-      .collection('albums')
-      .doc(albumId)
-      .collection('photos')
-      .doc();
+  const photoRef = db
+    .collection('albums')
+    .doc(albumId)
+    .collection('photos')
+    .doc();
 
-    const basePhoto = {
-      storagePath: '',
-      caption: file.name || `photo-${index + 1}`,
-      createdBy: currentUser.uid,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    };
+  const basePhoto = {
+    storagePath: '',
+    caption: file.name || `photo-${index + 1}`,
+    createdBy: currentUser.uid,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  };
 
-    if (dataUrl.length <= PHOTO_INLINE_DATA_URL_LIMIT) {
+  if (estimateDataUrlLength(file) <= PHOTO_INLINE_DATA_URL_LIMIT) {
+    return readFileAsDataUrl(file).then((dataUrl) => {
+      if (dataUrl.length > PHOTO_INLINE_DATA_URL_LIMIT) {
+        return saveChunkedPhoto(albumId, photoRef, basePhoto, file);
+      }
+
       return photoRef
         .set({
           ...basePhoto,
@@ -774,20 +794,37 @@ export function saveAlbumPhoto(albumId, file, index, currentUser) {
           clearCachedQuery(`album-photos:${albumId}`);
           return { photoId: photoRef.id, url: dataUrl };
         });
-    }
+    });
+  }
 
-    const chunks = splitText(dataUrl, PHOTO_CHUNK_SIZE);
+  return saveChunkedPhoto(albumId, photoRef, basePhoto, file);
+}
+
+function estimateDataUrlLength(file) {
+  const mimeType = file.type || 'application/octet-stream';
+  return `data:${mimeType};base64,`.length + Math.ceil(file.size / 3) * 4;
+}
+
+function saveChunkedPhoto(albumId, photoRef, basePhoto, file) {
+  return prepareChunkedPhotoPayload(file).then((payload) => {
+    const arrayBuffer = payload.arrayBuffer;
+    const chunks = splitArrayBuffer(arrayBuffer, PHOTO_CHUNK_SIZE);
 
     return photoRef
       .set({
         ...basePhoto,
         url: '',
         chunked: true,
+        chunkFormat: 'bytes',
         chunkCount: chunks.length,
-        dataUrlLength: dataUrl.length,
-        mimeType: file.type,
+        byteLength: arrayBuffer.byteLength,
+        originalByteLength: file.size,
+        encoded: payload.encoded,
+        mimeType: payload.mimeType,
+        uploading: true,
       })
       .then(() => savePhotoChunks(photoRef, chunks))
+      .then(() => photoRef.update({ uploading: false }))
       .then(() => {
         clearCachedQuery(`album-photos:${albumId}`);
         return { photoId: photoRef.id, url: '' };
@@ -795,27 +832,84 @@ export function saveAlbumPhoto(albumId, file, index, currentUser) {
   });
 }
 
-function splitText(text, chunkSize) {
+function prepareChunkedPhotoPayload(file) {
+  return encodeImageFileForAlbum(file, { targetBytes: PHOTO_ENCODE_TARGET_BYTES })
+    .then((blob) =>
+      blob.arrayBuffer().then((arrayBuffer) => ({
+        arrayBuffer,
+        encoded: true,
+        mimeType: blob.type || 'image/jpeg',
+      })),
+    )
+    .catch((error) => {
+      console.warn('Album image encoding failed; uploading original bytes', error);
+      return readFileAsArrayBuffer(file).then((arrayBuffer) => ({
+        arrayBuffer,
+        encoded: false,
+        mimeType: file.type || 'application/octet-stream',
+      }));
+    });
+}
+
+function splitArrayBuffer(arrayBuffer, chunkSize) {
   const chunks = [];
-  for (let start = 0; start < text.length; start += chunkSize) {
-    chunks.push(text.slice(start, start + chunkSize));
+  const bytes = new Uint8Array(arrayBuffer);
+  for (let start = 0; start < bytes.length; start += chunkSize) {
+    chunks.push(bytes.slice(start, start + chunkSize));
   }
   return chunks;
 }
 
 function savePhotoChunks(photoRef, chunks) {
-  return Promise.all(
-    chunks.map((data, index) =>
-      photoRef.collection('chunks').doc(String(index).padStart(5, '0')).set({
+  const batches = [];
+  for (let start = 0; start < chunks.length; start += PHOTO_CHUNKS_PER_BATCH) {
+    batches.push({ start, chunks: chunks.slice(start, start + PHOTO_CHUNKS_PER_BATCH) });
+  }
+
+  let nextBatchIndex = 0;
+  const workerCount = Math.min(PHOTO_CHUNK_BATCH_CONCURRENCY, batches.length);
+  const uploadNextBatch = () => {
+    const batchInfo = batches[nextBatchIndex];
+    nextBatchIndex += 1;
+
+    if (!batchInfo) {
+      return Promise.resolve();
+    }
+
+    const batch = db.batch();
+    batchInfo.chunks.forEach((chunk, offset) => {
+      const index = batchInfo.start + offset;
+      const chunkRef = photoRef.collection('chunks').doc(String(index).padStart(5, '0'));
+      batch.set(chunkRef, {
         index,
-        data,
-      }),
-    ),
-  );
+        bytes: firebase.firestore.Blob.fromUint8Array(chunk),
+      });
+    });
+
+    return batch.commit().then(uploadNextBatch);
+  };
+
+  return Promise.all(Array.from({ length: workerCount }, uploadNextBatch));
 }
 
 function loadPhotoUrl(albumId, photo) {
   if (photo.url) return Promise.resolve(photo.url);
+  if (photo.uploading) return Promise.reject(new Error('照片尚未完成上傳'));
+
+  if (photo.chunked === undefined && photo.chunkCount === undefined) {
+    return db
+      .collection('albums')
+      .doc(albumId)
+      .collection('photos')
+      .doc(photo.id)
+      .get()
+      .then((doc) => {
+        if (!doc.exists) {
+          throw new Error('照片資料不存在');
+        }
+        return loadPhotoUrl(albumId, { id: doc.id, ...doc.data() });
+      });
+  }
 
   return db
     .collection('albums')
@@ -826,10 +920,27 @@ function loadPhotoUrl(albumId, photo) {
     .orderBy('index', 'asc')
     .get()
     .then((snapshot) => {
+      if (photo.chunkCount && snapshot.size < photo.chunkCount) {
+        throw new Error('照片尚未完成上傳');
+      }
+
       let url = '';
+      const byteChunks = [];
       snapshot.forEach((doc) => {
-        url += doc.data().data || '';
+        const chunk = doc.data();
+        if (chunk.bytes) {
+          byteChunks.push(chunk.bytes.toUint8Array());
+        } else {
+          url += chunk.data || '';
+        }
       });
+
+      if (byteChunks.length > 0) {
+        const blob = new Blob(byteChunks, {
+          type: photo.mimeType || 'application/octet-stream',
+        });
+        return URL.createObjectURL(blob);
+      }
 
       if (!url) {
         throw new Error('照片資料不存在');

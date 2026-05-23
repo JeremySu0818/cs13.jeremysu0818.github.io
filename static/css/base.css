@@ -34,12 +34,22 @@ body {
   min-height: 100vh;
   font-family: "Noto Sans TC", "Segoe UI", system-ui, sans-serif;
   color: var(--text);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
   background-color: #e6e2d9;
   background-image: linear-gradient(var(--page-overlay), var(--page-overlay)), var(--page-background);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  pointer-events: none;
 }
 
 body.app-page {
@@ -90,4 +100,10 @@ textarea {
 
 .hidden {
   display: none !important;
+}
+
+@media (max-width: 760px) {
+  body::before {
+    background-position: var(--page-background-position, center);
+  }
 }

@@ -11,18 +11,46 @@ const BACKGROUNDS = Object.freeze([
   '/static/images/backgrounds/10.jpg',
 ]);
 
-function getGlassOptions() {
+function getGlassOptions(element) {
   const isMobile = window.matchMedia('(max-width: 760px)').matches;
+  const isTargetPopup =
+    element &&
+    (element.closest('#change-password-modal') ||
+      element.closest('#edit-album-modal') ||
+      element.closest('#edit-poll-modal') ||
+      element.closest('#new-chat-modal'));
   return {
     radius: isMobile ? 32 : 60,
     bezelWidth: 20,
     glassThickness: 300,
-    blur: 0,
+    blur: isTargetPopup ? 3 : 0,
     refractiveIndex: 1.5,
     surface: 'convexSquircle',
     specularOpacity: 1,
   };
 }
+
+const BG_COLORFUL_RANGES = Object.freeze({
+  '/static/images/backgrounds/1.jpg': [[17, 99]],
+  '/static/images/backgrounds/2.jpg': [[16, 86]],
+  '/static/images/backgrounds/3.jpg': [[0, 22]],
+  '/static/images/backgrounds/4.jpg': [[0, 36]],
+  '/static/images/backgrounds/5.jpg': [[73, 99]],
+  '/static/images/backgrounds/6.jpg': [
+    [8, 34],
+    [75, 99],
+  ],
+  '/static/images/backgrounds/7.jpg': [[59, 99]],
+  '/static/images/backgrounds/8.jpg': [
+    [0, 17],
+    [86, 99],
+  ],
+  '/static/images/backgrounds/9.jpg': [[8, 32]],
+  '/static/images/backgrounds/10.jpg': [
+    [5, 16],
+    [40, 99],
+  ],
+});
 
 function pickRandomBackground() {
   return BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)];
@@ -33,6 +61,13 @@ function setRandomBackground() {
   document.documentElement.style.setProperty(
     '--page-background',
     `url("${background}")`,
+  );
+  const ranges = BG_COLORFUL_RANGES[background] || [[0, 100]];
+  const range = ranges[Math.floor(Math.random() * ranges.length)];
+  const xPct = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+  document.documentElement.style.setProperty(
+    '--page-background-position',
+    `${xPct}% center`,
   );
 }
 
@@ -57,7 +92,7 @@ function mountGlassFilter(createLiquidGlass, element, registry) {
   const glass = createLiquidGlass({
     width,
     height,
-    ...getGlassOptions(),
+    ...getGlassOptions(element),
   });
 
   const holder = document.createElement('div');

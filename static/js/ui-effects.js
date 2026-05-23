@@ -30,28 +30,6 @@ function getGlassOptions(element) {
   };
 }
 
-const BG_COLORFUL_RANGES = Object.freeze({
-  '/static/images/backgrounds/1.jpg': [[17, 99]],
-  '/static/images/backgrounds/2.jpg': [[16, 86]],
-  '/static/images/backgrounds/3.jpg': [[0, 22]],
-  '/static/images/backgrounds/4.jpg': [[0, 36]],
-  '/static/images/backgrounds/5.jpg': [[73, 99]],
-  '/static/images/backgrounds/6.jpg': [
-    [8, 34],
-    [75, 99],
-  ],
-  '/static/images/backgrounds/7.jpg': [[59, 99]],
-  '/static/images/backgrounds/8.jpg': [
-    [0, 17],
-    [86, 99],
-  ],
-  '/static/images/backgrounds/9.jpg': [[8, 32]],
-  '/static/images/backgrounds/10.jpg': [
-    [5, 16],
-    [40, 99],
-  ],
-});
-
 function pickRandomBackground() {
   return BACKGROUNDS[Math.floor(Math.random() * BACKGROUNDS.length)];
 }
@@ -60,15 +38,86 @@ function setRandomBackground() {
   const background = pickRandomBackground();
   document.documentElement.style.setProperty(
     '--page-background',
-    `url("${background}")`,
+    `url("${background}")`
   );
-  const ranges = BG_COLORFUL_RANGES[background] || [[0, 100]];
-  const range = ranges[Math.floor(Math.random() * ranges.length)];
-  const xPct = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
   document.documentElement.style.setProperty(
     '--page-background-position',
-    `${xPct}% center`,
+    'center'
   );
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = background;
+  img.onload = () => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 100;
+      canvas.height = 50;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0, 100, 50);
+      const imgData = ctx.getImageData(0, 0, 100, 50).data;
+      const colVibrancies = [];
+      for (let x = 0; x < 100; x++) {
+        let sumR = 0;
+        let sumG = 0;
+        let sumB = 0;
+        for (let y = 0; y < 50; y++) {
+          const idx = (y * 100 + x) * 4;
+          sumR += imgData[idx];
+          sumG += imgData[idx + 1];
+          sumB += imgData[idx + 2];
+        }
+        const meanR = sumR / 50;
+        const meanG = sumG / 50;
+        const meanB = sumB / 50;
+        let varR = 0;
+        let varG = 0;
+        let varB = 0;
+        for (let y = 0; y < 50; y++) {
+          const idx = (y * 100 + x) * 4;
+          varR += Math.pow(imgData[idx] - meanR, 2);
+          varG += Math.pow(imgData[idx + 1] - meanG, 2);
+          varB += Math.pow(imgData[idx + 2] - meanB, 2);
+        }
+        const stdR = Math.sqrt(varR / 50);
+        const stdG = Math.sqrt(varG / 50);
+        const stdB = Math.sqrt(varB / 50);
+        colVibrancies.push((stdR + stdG + stdB) / 3.0);
+      }
+      const vibrancies = [];
+      const halfWin = 13;
+      for (let x = 0; x < 100; x++) {
+        const start = Math.max(0, x - halfWin);
+        const end = Math.min(100, x + halfWin);
+        let sum = 0;
+        for (let wx = start; wx < end; wx++) {
+          sum += colVibrancies[wx];
+        }
+        vibrancies.push(sum / (end - start));
+      }
+      let maxVib = 0;
+      for (let i = 0; i < 100; i++) {
+        if (vibrancies[i] > maxVib) {
+          maxVib = vibrancies[i];
+        }
+      }
+      const threshold = maxVib * 0.75;
+      const goodPositions = [];
+      for (let i = 0; i < 100; i++) {
+        if (vibrancies[i] >= threshold) {
+          goodPositions.push(i);
+        }
+      }
+      if (goodPositions.length > 0) {
+        const chosenX = goodPositions[Math.floor(Math.random() * goodPositions.length)];
+        document.documentElement.style.setProperty(
+          '--page-background-position',
+          `${chosenX}% center`
+        );
+      }
+    } catch (e) {
+    }
+  };
 }
 
 function mountGlassFilter(createLiquidGlass, element, registry) {

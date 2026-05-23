@@ -626,6 +626,7 @@
             </form>
 
             <form class="feature-form profile-card" id="profile-password-form">
+              <input type="text" name="username" autocomplete="username" style="display: none;" />
               <div class="form-group">
                 <label class="form-label" for="profile-new-password">
                   新密碼
@@ -796,12 +797,14 @@
             為了你的帳號安全，請先更換密碼😀
           </p>
           <form id="change-password-form">
+            <input type="text" name="username" autocomplete="username" style="display: none;" />
             <div class="form-group">
               <label class="form-label" for="new-password">新密碼</label>
               <input
                 class="form-input"
                 type="password"
                 id="new-password"
+                autocomplete="new-password"
                 required
                 minlength="6"
               />
@@ -814,6 +817,7 @@
                 class="form-input"
                 type="password"
                 id="confirm-password"
+                autocomplete="new-password"
                 required
                 minlength="6"
               />
